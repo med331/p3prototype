@@ -11,7 +11,8 @@ while(True):
 
     # Our operations on the frame come here
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    gray = cv2.threshold(gray,50,255, cv2.THRESH_BINARY)[1]
+    # gray = cv2.threshold(gray,75,255, cv2.THRESH_BINARY)[1]
+    gray = cv2.Canny(gray, 60, 75)
     gray = cv2.bilateralFilter(gray, 9, 75, 75)
 
     # Display the resulting frame
