@@ -1,8 +1,13 @@
 import cv2
+import time
+import datetime
+import imutils
 from algorithm import Algorithm
 
 
 class StefAlgorithm1(Algorithm):
+    ''' Steffan's initial canny edge-detection algorithm '''
+
     def __init__(self, identifier='frame'):
         '''just calling parent constructor'''
         super().__init__(identifier=identifier)

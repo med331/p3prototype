@@ -1,6 +1,5 @@
-import numpy as np
 import cv2
-from videotest_algorithms import StefAlgorithm1
+from videotest_algorithms import *
 
 cap = cv2.VideoCapture(0)
 cap.set(3, 800)
@@ -13,7 +12,7 @@ ALGORITHM_IN_USE = StefAlgorithm1()
 
 while(True):
     # capture frame-by-frame
-    ret, frame = cap.read()
+    frame = cap.read()[1]
 
     # process the frame
     processed = ALGORITHM_IN_USE.process_frame(frame)

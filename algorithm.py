@@ -7,7 +7,7 @@ class Algorithm:  # abstract class
         self.identifier = identifier
 
     def _process(self, frame):  # the "_" in the name means this method should be treated as protected!
-        '''abstract method, the one you should implement'''
+        ''' abstract method, the one you should implement '''
         return frame
 
     def process_frame(self, frame):
