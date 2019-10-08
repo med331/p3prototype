@@ -8,7 +8,7 @@ class Algorithm:  # abstract class
 
     def _process(self, frame):  # the "_" in the name means this method should be treated as protected!
         ''' abstract method, the one you should implement '''
-        return frame
+        raise NotImplementedError
 
     def process_frame(self, frame):
         self.frame = self._process(frame)
