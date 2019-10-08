@@ -1,7 +1,5 @@
 import cv2
-import time
 import datetime
-import imutils
 from algorithm import Algorithm
 
 
@@ -53,7 +51,6 @@ class YTAlgorithm1(Algorithm):
         else:
             pass
 
-        resized_frame = imutils.resize(frame, width=500)
         frame_delta = cv2.absdiff(self.first_frame, greyscale_image)
         # calculates the absolute diffrence between each element/pixel between the two images, first_frame - greyscale (on each element)
 
@@ -66,35 +63,27 @@ class YTAlgorithm1(Algorithm):
         # pixels in the foreground wich are white(255), element=Mat() = default 3x3 kernal matrix and iterartions=2 means it
         # will do it twice
 
+        # find all contours (represented as outlines in the final frame), using CHAIN_APPROX_SIMPLE to save on memory usage
         contours, hierarchy = cv2.findContours(
             thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+        # update the frame text to display the number of entities outlines by contours in the frame
         entities_in_frame = len(contours)
         if entities_in_frame > 0:
             self.identifier = str(entities_in_frame) + ' entities in frame'
 
+        # return the final rendered contours
         return cv2.drawContours(frame, contours, -1, (0, 255, 0), 3)
-        # x, y, w, h = cv2.boundingRect(contours)
-        # return cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-
-    def process_frame(self, frame):
-        frame = self._process(frame)
-        self.frame = frame
-        return frame
 
     def display_current_frame(self):
-        ''' now draw text and timestamp on security feed '''
+        ''' draws text and timestamp on video feed '''
 
+        # frame is the image on wich the text will go. 0.5 is size of font, (0,0,255) is R,G,B color of font, 2 on end is LINE THICKNESS! OK :)
         font = cv2.FONT_HERSHEY_SIMPLEX
-
         cv2.putText(self.frame, '{+} Room Status: %s' % (self.identifier),
                     (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-        # frame is the image on wich the text will go. 0.5 is size of font, (0,0,255) is R,G,B color of font, 2 on end is LINE THICKNESS! OK :)
-
         cv2.putText(self.frame, datetime.datetime.now().strftime('%A %d %B %Y %I:%M:%S%p'),
                     (10, self.frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)  # frame.shape[0] = hieght, frame.shape[1] = width,ssssssssssssss
-        # using datetime to get date/time stamp, for font positions using frame.shape() wich returns a tuple of (rows,columns,channels)
-        # going 10 accross in rows/width so need columns with frame.shape()[0] we are selecting columns so how ever many pixel height
-        # the image is - 10 so oppisite end at bottom instead of being at the top like the other text
 
+        # show the processed frame
         cv2.imshow('Camera Feed', self.frame)
