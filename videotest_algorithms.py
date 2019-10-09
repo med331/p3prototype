@@ -64,8 +64,8 @@ class YTAlgorithm1(Algorithm):
         # will do it twice
 
         # find all contours (represented as outlines in the final frame), using CHAIN_APPROX_SIMPLE to save on memory usage
-        contours, hierarchy = cv2.findContours(
-            thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours = cv2.findContours(
+            thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[1]
 
         # update the frame text to display the number of entities outlines by contours in the frame
         entities_in_frame = len(contours)
