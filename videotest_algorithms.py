@@ -1,5 +1,6 @@
 import cv2
 import datetime
+import numpy as np
 from algorithm import Algorithm
 
 
@@ -87,3 +88,118 @@ class YTAlgorithm1(Algorithm):
 
         # show the processed frame
         cv2.imshow('Camera Feed', self.frame)
+
+
+class StefVideotest1(Algorithm):
+    def __init__(self, identifier='frame'):
+        super().__init__(identifier=identifier)
+        self.frame1 = None
+
+    def _process(self, frame):
+        frame = cv2.flip(frame, flipCode=1)
+        # Our operations on the frame come here
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (21, 21), 0)
+        gray = cv2.blur(gray, (5, 5))
+
+        #cv2.imshow("grayscale", gray)
+
+        # retrieve 1st frame
+        if self.frame1 is None:
+            self.frame1 = gray
+
+        else:
+            pass
+        # Creating mask
+        diff = cv2.absdiff(self.frame1, gray)
+        mask = diff
+
+        #cv2.imshow("subtract", mask)
+
+        mask = cv2.threshold(mask, 50, 225, cv2.THRESH_BINARY_INV)[1]
+        mask = cv2.medianBlur(mask, 9)
+        mask = cv2.dilate(mask, None, iterations=5)
+
+        #cv2.imshow("thresh", mask)
+
+        # background subtraction
+        gray = cv2.subtract(gray, mask)
+
+        #cv2.imshow("test", gray)
+
+        cnt = cv2.findContours(gray.copy(), cv2.RETR_CCOMP,
+                               cv2.CHAIN_APPROX_TC89_KCOS)[1]
+        for c in cnt:
+            if cv2.contourArea(c) > 800:
+                (x, y, w, h) = cv2.boundingRect(c)
+
+                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
+            else:
+                pass
+
+        # Optional drawContours instead of rectangle
+        #frame = cv2.drawContours(frame,cnt,-1,(0,0,255),2,cv2.FILLED)
+
+        return frame
+
+
+class StefVideotest2(Algorithm):
+    def __init__(self, identifier='frame'):
+        super().__init__(identifier=identifier)
+        self.lower_blue = np.array([100, 50, 50])
+        self.upper_blue = np.array([140, 255, 255])
+        self.frame1 = None
+
+    def _process(self, frame):
+        frame = cv2.flip(frame, flipCode=1)
+        # Our operations on the frame come here
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (21, 21), 0)
+        gray = cv2.blur(gray, (5, 5))
+        #cv2.imshow("grayscale", gray)
+
+        # retrieve 1st frame
+        if self.frame1 is None:
+            self.frame1 = gray
+
+        else:
+            pass
+        # creating the mask
+        diff = cv2.absdiff(self.frame1, gray)
+        gray = diff
+        gray = cv2.medianBlur(gray, 9)
+        gray = cv2.threshold(gray, 25, 225, cv2.THRESH_BINARY_INV)[1]
+        gray = cv2.dilate(gray, None, iterations=2)
+        gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+
+        #cv2.imshow("diff", gray)
+
+        # background subtraction
+        hsv = frame
+        hsv = cv2.subtract(hsv, gray)
+        hsv = cv2.cvtColor(hsv, cv2.COLOR_BGR2HSV)
+
+        #cv2.imshow("sub", hsv)
+
+        # Colour threshholding
+        hsv = cv2.inRange(hsv, self.lower_blue, self.upper_blue)
+
+        hsv = cv2.medianBlur(hsv, 9)
+
+        #cv2.imshow("thresh", hsv)
+
+        # find blue object above certain size and draw a box around them
+        cnt = cv2.findContours(hsv.copy(), cv2.RETR_CCOMP,
+                               cv2.CHAIN_APPROX_TC89_KCOS)[1]
+        for c in cnt:
+            if cv2.contourArea(c) > 800:
+                (x, y, w, h) = cv2.boundingRect(c)
+
+                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
+
+            else:
+                pass
+        # Optional drawContours instead of rectangle
+        #frame = cv2.drawContours(frame,cnt,-1,(0,0,255),2,cv2.FILLED)
+
+        return frame
