@@ -1,7 +1,7 @@
 import cv2
 import datetime
 import numpy as np
-from algorithm import Algorithm
+from algorithm import *
 
 
 class StefAlgorithm1(Algorithm):
