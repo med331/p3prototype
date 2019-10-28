@@ -15,7 +15,7 @@ class StefAlgorithm1(Algorithm):
         # (simple) operations on the frame
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.Canny(gray, 60, 75)
-        return cv2.bilateralFilter(gray, 9, 75, 75)
+        return (cv2.bilateralFilter(gray, 9, 75, 75), [])
 
 
 class YTAlgorithm1(Algorithm):
@@ -74,7 +74,7 @@ class YTAlgorithm1(Algorithm):
             self.identifier = str(entities_in_frame) + ' entities in frame'
 
         # return the final rendered contours
-        return cv2.drawContours(frame, contours, -1, (0, 255, 0), 3)
+        return (cv2.drawContours(frame, contours, -1, (0, 255, 0), 3), [])
 
     def display_current_frame(self):
         ''' draws text and timestamp on video feed '''
@@ -140,7 +140,7 @@ class StefVideotest1(Algorithm):
         # Optional drawContours instead of rectangle
         #frame = cv2.drawContours(frame,cnt,-1,(0,0,255),2,cv2.FILLED)
 
-        return frame
+        return (frame, [])
 
 
 class StefVideotest2(Algorithm):
@@ -202,4 +202,4 @@ class StefVideotest2(Algorithm):
         # Optional drawContours instead of rectangle
         #frame = cv2.drawContours(frame,cnt,-1,(0,0,255),2,cv2.FILLED)
 
-        return frame
+        return (frame, []) # object processing not yet implemented
