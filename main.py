@@ -7,7 +7,7 @@ cap.set(4, 600)
 
 
 # TODO: CHANGE ALGORITHM HERE
-ALGORITHM_IN_USE = YTAlgorithm1()
+ALGORITHM_IN_USE = StefVideotest2()
 
 
 while(True):
