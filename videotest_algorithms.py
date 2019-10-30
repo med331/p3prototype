@@ -146,14 +146,14 @@ class StefVideotest1(Algorithm):
 class StefVideotest2(Algorithm):
     def __init__(self, identifier='frame'):
         super().__init__(identifier=identifier)
-        self.lower_blue = np.array([100, 50, 50])
-        self.upper_blue = np.array([140, 255, 255])
+        self.lower_blue = np.array([38, 50, 50])
+        self.upper_blue = np.array([75, 255, 255])
         self.frame1 = None
 
     def _process(self, frame):
         frame = cv2.flip(frame, flipCode=1)
         # Our operations on the frame come here
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        '''gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.GaussianBlur(gray, (21, 21), 0)
         gray = cv2.blur(gray, (5, 5))
         #cv2.imshow("grayscale", gray)
@@ -172,13 +172,13 @@ class StefVideotest2(Algorithm):
         gray = cv2.dilate(gray, None, iterations=2)
         gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
 
-        #cv2.imshow("diff", gray)
+        cv2.imshow("diff", gray)'''
 
         # background subtraction
         hsv = frame
-        hsv = cv2.subtract(hsv, gray)
-        hsv = cv2.cvtColor(hsv, cv2.COLOR_BGR2HSV)
-
+        #hsv = cv2.subtract(hsv, gray)
+        #hsv = cv2.cvtColor(hsv, cv2.COLOR_BGR2HSV)
+        hsv = cv2.cvtColor(hsv,cv2.COLOR_BGR2HSV)
         #cv2.imshow("sub", hsv)
 
         # Colour threshholding
@@ -186,20 +186,26 @@ class StefVideotest2(Algorithm):
 
         hsv = cv2.medianBlur(hsv, 9)
 
-        #cv2.imshow("thresh", hsv)
+        hsv = cv2.dilate(hsv,None,iterations=3)
+
+        cv2.imshow("thresh", hsv)
 
         # find blue object above certain size and draw a box around them
         cnt = cv2.findContours(hsv.copy(), cv2.RETR_CCOMP,
                                cv2.CHAIN_APPROX_TC89_KCOS)[1]
+        k = []
         for c in cnt:
             if cv2.contourArea(c) > 800:
-                (x, y, w, h) = cv2.boundingRect(c)
 
+                (x, y, w, h) = cv2.boundingRect(c)
+                M = cv2.moments(c)
+                cx = int(M['m10'] / M['m00'])
+                cy = int(M['m01'] / M['m00'])
+                cv2.circle(frame, (cx,cy), 5, (0, 0, 255), -1)
                 cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
 
             else:
                 pass
         # Optional drawContours instead of rectangle
         #frame = cv2.drawContours(frame,cnt,-1,(0,0,255),2,cv2.FILLED)
-
         return (frame, []) # object processing not yet implemented
