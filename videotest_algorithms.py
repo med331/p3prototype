@@ -152,6 +152,7 @@ class StefVideotest2(Algorithm):
 
     def _process(self, frame):
         frame = cv2.flip(frame, flipCode=1)
+        centers = []
         # Our operations on the frame come here
         '''gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.GaussianBlur(gray, (21, 21), 0)
@@ -201,11 +202,17 @@ class StefVideotest2(Algorithm):
                 M = cv2.moments(c)
                 cx = int(M['m10'] / M['m00'])
                 cy = int(M['m01'] / M['m00'])
+                centers.append([cx, cy])
                 cv2.circle(frame, (cx,cy), 5, (0, 0, 255), -1)
                 cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
 
             else:
                 pass
+        if len(centers) >= 2:
+            dx = centers[0][0] - centers[1][0]
+            dy = centers[0][1] - centers[1][1]
+            D = np.sqrt(dx * dx + dy * dy)
+            print(D)
         # Optional drawContours instead of rectangle
         #frame = cv2.drawContours(frame,cnt,-1,(0,0,255),2,cv2.FILLED)
         return (frame, []) # object processing not yet implemented
