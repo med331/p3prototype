@@ -212,7 +212,13 @@ class StefVideotest2(Algorithm):
             dx = centers[0][0] - centers[1][0]
             dy = centers[0][1] - centers[1][1]
             D = np.sqrt(dx * dx + dy * dy)
-            print(D)
+            col = (0, 0, 255)
+            if dy <25:
+                col = (0, 255, 0)
+            else:
+                col = (0, 0, 255)
+            cv2.line(frame,(centers[0][0],centers[0][1]),(centers[1][0],centers[1][1]),col,5)
+            cv2.circle(frame,(int((centers[0][0] + centers[1][0])/2),int((centers[0][1] + centers[1][1])/2)), 10, col, -1)
         # Optional drawContours instead of rectangle
         #frame = cv2.drawContours(frame,cnt,-1,(0,0,255),2,cv2.FILLED)
         return (frame, []) # object processing not yet implemented
