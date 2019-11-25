@@ -8,7 +8,7 @@ from game_screen import GameScreen
 class ScreenManager:
 
     def __init__(self):
-        self._screens = [GameScreen()]
+        self._screens = [GameScreen()]  # TODO: add more screens here
         self._activeScreenIndex = 0
 
     def change_screen(self, index):
