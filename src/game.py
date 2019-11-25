@@ -2,10 +2,10 @@
         Game must maintain the game state and handle the logic of the game itself
 """
 
-from gesture_engine import GestureEngine
+from src.gesture_engine import GestureEngine
 
 
-class Game(GestureEngine):
+class Game(GestureEngine):  # please see tests/test_game for how to test your code
 
     def __init__(self):
         super(Game, self).__init__()  # calling GestureEngine constructor

@@ -2,7 +2,7 @@
         ScreenManager is currently (almost) fully implemented
 """
 
-from game_screen import GameScreen
+from src.game_screen import GameScreen
 
 
 class ScreenManager:

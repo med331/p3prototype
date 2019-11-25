@@ -2,8 +2,8 @@
         GameScreen must define Game-related GUI elements and handle keyboard input (not webcam gesture detection)
 """
 
-from screen import Screen
-from game import Game
+from src.screen import Screen
+from src.game import Game
 
 
 class GameScreen(Game, Screen):  # GameScreen inherits from both Screen and Game
