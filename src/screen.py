@@ -1,12 +1,14 @@
 """
         Screen is currently fully implemented
 """
+from src.screen_manager import ScreenManager as sm
 
 
 class Screen:  # abstract class
 
-    def __init__(self):
-        self._someState = "a state"  # TODO: Class can be scrapped if no state is maintained here
+    @staticmethod
+    def change_screen(index):  # forward method from Screen Manager
+        sm.change_screen(index)
 
     def show(self):                  # abstract method
         raise NotImplementedError
