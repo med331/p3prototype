@@ -5,15 +5,16 @@
 import random
 from src.gesture_engine import GestureEngine
 
-class GameField:  # 0: empty field 1:pickup 2:seagull 3:river
-    sizeX = 4
-    sizeY = 6
+class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
+    sizeX = 12
+    sizeY = 20
     fieldArray = []
+
     for i in range(sizeX):  # reset the bottom row
         fieldArray.append([0] * sizeY)
+    fieldArray[int(sizeX / 2)][0] = 4  # place the turtle
 
     #def __init__(self):
-
 
     def moveField(self):  # move all fields
         for x in range(len(self.fieldArray)):
@@ -21,7 +22,8 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river
         for x in range(len(self.fieldArray)):
             for y in range(1, len(self.fieldArray[x])):
                 self.fieldArray[x][y - 1] = self.fieldArray[x][y]
-        self.generateRow(self)
+        self.generateRow()
+        self.fieldArray[int(self.sizeX / 2)][0] = 4  # place the turtle
 
     def generateRow(self):  # generate new row
         if random.randint(0, 10) == 1:  # roll for river
@@ -47,10 +49,10 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river
                 Game.currentStreak += 1
                 Game.currentPoints += 10
 
-    def display(self):
-        for x in range(6):
-            self.generateRow(self)
-            self.moveField(self)
+    def display(self): #display the field for testing purposes
+        for x in range(self.sizeY):
+            self.generateRow()
+            self.moveField()
         for x in range(self.sizeX):
             print(self.fieldArray[x])
 
@@ -58,7 +60,8 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river
 class Game(GestureEngine):  # please see tests/test_game for how to test your code
     currentStreak = 0
     currentPoints = 0
-    field = GameField
+    field = GameField()
+    difficulty = 10 #difficulty (the higher the easier)
 
     def __init__(self):
         super(Game, self).__init__()  # calling GestureEngine constructor

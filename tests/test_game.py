@@ -25,4 +25,4 @@ class TestGame(TestGame):
         self.assertEqual(self._game.hasFinished, True, "Game does not stop!")
 
     def testDisplay(self):
-        self._game.field.display(self._game.field)
+        self._game.field.display()
