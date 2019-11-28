@@ -1,6 +1,7 @@
 from unittest import TestCase
-from src.gesture_engine import *
+from src.gesture_engine import GestureEngine
 import cv2
+
 
 class TestGestureEngine(TestCase):
 
@@ -8,7 +9,7 @@ class TestGestureEngine(TestCase):
         cap = cv2.VideoCapture(0)
         cap.set(3, 800)
         cap.set(4, 600)
-        while(True):
+        while True:
             frame = cap.read()[1]
             frame2 = GestureEngine().process_frame(frame)
             cv2.imshow('Frame', frame2)

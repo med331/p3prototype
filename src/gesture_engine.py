@@ -73,4 +73,3 @@ class Hand:
     def __init__(self, x, y, width, height):
         self.x, self.y = x, y
         self.width, self.height = width, height
-        # self.middleX, self.middleY = middle_x, middle_y
