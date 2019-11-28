@@ -6,15 +6,47 @@ import random
 from src.gesture_engine import GestureEngine
 
 class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
-    sizeX = 12
-    sizeY = 20
+    sizeX = 4
+    sizeY = 6
     fieldArray = []
+    turtleXPosition = int(sizeX / 2)
+    turtleZPosition = 0
+    difficulty = 0
+    riverChance = 5
+    seagullChance = 5
+    pickupChance = 5
 
-    for i in range(sizeX):  # reset the bottom row
-        fieldArray.append([0] * sizeY)
-    fieldArray[int(sizeX / 2)][0] = 4  # place the turtle
+    def __init__(self,_difficulty):
+        self.difficulty = _difficulty
+        for i in range(self.sizeX):  # reset the bottom row
+            self.fieldArray.append([0] * self.sizeY)
+        #self.fieldArray[self.turtleXPosition][0] = 4  # place the turtle
 
-    #def __init__(self):
+    def updateGame(self):
+        """
+        switch(input):
+            case "Left":
+                self.moveTurtle("Left")
+                break
+            case "Right":
+                self.moveTurtle("Right")
+                break
+            case "Jump":
+                self.moveTurtle("Jump")
+                break
+            default:
+                self.moveTurtle(forward)
+        """
+
+    def moveTurtle(self, _input):
+        self.turtleZPosition = 0
+        if _input == "Left":
+            Math.cla
+        elif _input == "Right":
+        elif _input == "Jump":
+        else:
+
+
 
     def moveField(self):  # move all fields
         for x in range(len(self.fieldArray)):
@@ -39,13 +71,13 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
                 else:
                     self.fieldArray[x][self.sizeY - 1] = 0
 
-    def checkField(self, bila):
-        gameObject = self.fieldArray[bila.xPosition][bila.yPosition]
+    def checkField(self):
+        gameObject = self.fieldArray[self.turtleXPosition][0]
         if gameObject == 2 or gameObject == 3:
-            if bila.zPosition == 0:
+            if self.turtleZPosition == 0:
                 Game.currentStreak = 0
         elif gameObject == 1:
-            if bila.zPosition == 0:
+            if self.turtleZPosition == 0:
                 Game.currentStreak += 1
                 Game.currentPoints += 10
 
@@ -60,8 +92,8 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
 class Game(GestureEngine):  # please see tests/test_game for how to test your code
     currentStreak = 0
     currentPoints = 0
-    field = GameField()
     difficulty = 10 #difficulty (the higher the easier)
+    field = GameField(difficulty)
 
     def __init__(self):
         super(Game, self).__init__()  # calling GestureEngine constructor
@@ -80,7 +112,7 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
                 "Game Has Finished?": self.hasFinished,
                 "Is This Dictionary Placeholder?": True}
 
-
+"""
 class Turtle:
     isHeld = False
     xPosition = 0
@@ -119,5 +151,5 @@ class GameObject:
 
                 else:
                     Game.currentStreak = 0
-
+"""
 
