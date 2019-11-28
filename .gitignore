@@ -1,4 +1,4 @@
-.idea/misc.xml
+.idea/*
 .vscode/*
 
 # Created by https://www.gitignore.io/api/python,opencv,pycharm,intellij,visualstudio,visualstudiocode
