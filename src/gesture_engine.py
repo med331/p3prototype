@@ -10,7 +10,7 @@ class GestureEngine:
 
     def __init__(self):
         self.hands = []
-        self.distance_between_hands = sys.maxsize
+        self.is_holding_turtle = False
         self.middle_point = (sys.maxsize, sys.maxsize)
 
     def process_frame(self, frame):
@@ -52,10 +52,11 @@ class GestureEngine:
         if len(centers) >= 2:
             dx = centers[0][0] - centers[1][0]
             dy = centers[0][1] - centers[1][1]
-            self.distance_between_hands = np.sqrt(dx * dx + dy * dy)
+            d = np.sqrt(dx * dx + dy * dy)
             col = (0, 0, 255)
-            if dy < 25:
+            if d < 250 and dy < 25:
                 col = (0, 255, 0)
+                self.is_holding_turtle = True
             else:
                 col = (0, 0, 255)
             cv2.line(frame, (centers[0][0], centers[0][1]), (centers[1][0], centers[1][1]), col, 5)
