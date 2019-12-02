@@ -2,6 +2,7 @@
         Game must maintain the game state and handle the logic of the game itself
 """
 
+import time
 import random
 from src.gesture_engine import GestureEngine
 
@@ -85,17 +86,24 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
                 Game.currentPoints += 10
 
     def display(self): #display the field for testing purposes
+        for y in range(self.sizeY-1, -1, -1):
+            print("[", end='')
+            for x in range(self.sizeX):
+                print(self.fieldArray[x][y], end=' ')
+            print("]")
+        print("")
+
+    def setup(self):
         for x in range(self.sizeY):
-            self.generateRow()
             self.moveField()
-        for x in range(self.sizeX):
-            print(self.fieldArray[x])
+            self.generateRow()
 
 
 class Game(GestureEngine):  # please see tests/test_game for how to test your code
     currentStreak = 0
     currentPoints = 0
     difficulty = 10 #difficulty (the higher the easier)
+    speed = 2 #how many seconds in between movements
     field = GameField(difficulty)
 
     def __init__(self):
@@ -104,6 +112,11 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
 
     def start(self):
         self.hasFinished = False
+        self.field.setup()
+        while self.hasFinished==False:
+            self.field.moveField()
+            self.field.display()
+            time.sleep(self.speed)
         # TODO: Implement the rest
 
     def stop(self):
