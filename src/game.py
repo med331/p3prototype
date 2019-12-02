@@ -41,10 +41,13 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
     def moveTurtle(self, _input):
         self.turtleZPosition = 0
         if _input == "Left":
-            Math.cla
+            if self.turtleXPosition>0:
+                self.turtleXPosition-=1
         elif _input == "Right":
+            if self.turtleXPosition<self.sizeX-1:
+                self.turtleXPosition+=1
         elif _input == "Jump":
-        else:
+            self.turtleZPosition+=1
 
 
 
