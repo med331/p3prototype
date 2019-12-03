@@ -30,7 +30,7 @@ class GestureEngine:
 
         hsv = cv2.dilate(hsv, None, iterations=3)
 
-        cv2.imshow("thresh", hsv)
+        #cv2.imshow("thresh", hsv)
 
         # find blue object above certain size and draw a box around them
         cnt = cv2.findContours(hsv.copy(), cv2.RETR_CCOMP,
@@ -58,6 +58,7 @@ class GestureEngine:
                 col = (0, 255, 0)
                 self.is_holding_turtle = True
             else:
+                self.is_holding_turtle = False
                 col = (0, 0, 255)
             cv2.line(frame, (centers[0][0], centers[0][1]), (centers[1][0], centers[1][1]), col, 5)
             cv2.circle(frame, (int((centers[0][0] + centers[1][0]) / 2), int((centers[0][1] + centers[1][1]) / 2)), 10,

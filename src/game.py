@@ -19,7 +19,8 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
         self.hasFinished = True
         # TODO: Implement the rest
 
-    def get_game_data(self):
-        return {"Two Hands In Frame?": self.twoHandsInFrame,
-                "Game Has Finished?": self.hasFinished,
-                "Is This Dictionary Placeholder?": True}
+    def update(self, frame):
+        # update GestureEngine
+        print(self.is_holding_turtle)
+        return self.process_frame(frame)
+        # TODO: update the rest of the game
