@@ -4,6 +4,7 @@
 
 import time
 import random
+import msvcrt
 from src.gesture_engine import GestureEngine
 
 class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
@@ -13,31 +14,17 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
     turtleXPosition = int(sizeX / 2)
     turtleZPosition = 0
     difficulty = 0
-    riverChance = 5
-    seagullChance = 5
-    pickupChance = 5
+    riverChance = 7
+    seagullChance = 7
+    pickupChance = 8
 
-    def __init__(self,_difficulty):
-        self.difficulty = _difficulty
+    def __init__(self, _difficulty):
+        self.difficulty = _difficulty+1
+        self.riverChance = self.riverChance * self.difficulty
+        self.seagullChance = self.seagullChance * self.difficulty
         for i in range(self.sizeX):  # reset the bottom row
             self.fieldArray.append([0] * self.sizeY)
         #self.fieldArray[self.turtleXPosition][0] = 4  # place the turtle
-
-    def updateGame(self):
-        """
-        switch(input):
-            case "Left":
-                self.moveTurtle("Left")
-                break
-            case "Right":
-                self.moveTurtle("Right")
-                break
-            case "Jump":
-                self.moveTurtle("Jump")
-                break
-            default:
-                self.moveTurtle(forward)
-        """
 
     def moveTurtle(self, _input):
         self.turtleZPosition = 0
@@ -51,7 +38,6 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
             self.turtleZPosition+=1
 
 
-
     def moveField(self):  # move all fields
         for x in range(len(self.fieldArray)):
             self.fieldArray[x][0] = 0
@@ -59,23 +45,26 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
             for y in range(1, len(self.fieldArray[x])):
                 self.fieldArray[x][y - 1] = self.fieldArray[x][y]
         self.generateRow()
-        self.fieldArray[int(self.sizeX / 2)][0] = 4  # place the turtle
+        self.fieldArray[self.turtleXPosition][0] = 4  # place the turtle
 
     def generateRow(self):  # generate new row
-        if random.randint(0, 10) == 1:  # roll for river
+        chance = random.randint(0, 100)
+        if chance < self.riverChance and self.fieldArray[0][self.sizeY-2] != 3:  # roll for river
+            print("river")
             for x in range(len(self.fieldArray)):
                 self.fieldArray[x][self.sizeY - 1] = 3
         else:
             for x in range(len(self.fieldArray)):
-                result = random.randint(0, 4)
-                if result == 0:
-                    self.fieldArray[x][self.sizeY - 1] = 1
-                elif result == 1:
+                chance = random.randint(self.riverChance, 100)
+                if chance < self.riverChance+self.seagullChance and ((self.fieldArray[x-1][self.sizeY-1] != 2) if x > 0 else True) and ((self.fieldArray[x+1][self.sizeY-1] != 2) if x < self.sizeX-1 else True) and (self.fieldArray[x][self.sizeY-2] != 2 and self.fieldArray[x][self.sizeY-3] != 2):
                     self.fieldArray[x][self.sizeY - 1] = 2
+                elif chance < self.riverChance+self.seagullChance+self.pickupChance:
+                    self.fieldArray[x][self.sizeY - 1] = 1
                 else:
                     self.fieldArray[x][self.sizeY - 1] = 0
 
-    def checkField(self):
+
+    def checkTurtleField(self):
         gameObject = self.fieldArray[self.turtleXPosition][0]
         if gameObject == 2 or gameObject == 3:
             if self.turtleZPosition == 0:
@@ -102,9 +91,10 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
 class Game(GestureEngine):  # please see tests/test_game for how to test your code
     currentStreak = 0
     currentPoints = 0
-    difficulty = 10 #difficulty (the higher the easier)
-    speed = 2 #how many seconds in between movements
+    difficulty = 4 #difficulty (the higher the easier)
+    speed = 0.6 #how many seconds in between movements
     field = GameField(difficulty)
+    kbPressed = 0
 
     def __init__(self):
         super(Game, self).__init__()  # calling GestureEngine constructor
@@ -112,11 +102,23 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
 
     def start(self):
         self.hasFinished = False
-        self.field.setup()
-        while self.hasFinished==False:
-            self.field.moveField()
-            self.field.display()
-            time.sleep(self.speed)
+        #self.field.setup()
+        startTime = time.time()
+        while self.hasFinished == False:
+            if time.time()-startTime >= self.speed:
+                startTime = time.time()
+                self.field.moveField()
+                print("Streak: %s" % self.currentStreak)
+                print("Points: %s" % self.currentPoints)
+                self.field.display()
+                movement = random.randint(0,1)
+                if movement == 0:
+                    self.field.moveTurtle("Left")
+                elif movement == 1:
+                    self.field.moveTurtle("Right")
+                self.field.checkTurtleField()
+
+            #time.sleep(self.speed)
         # TODO: Implement the rest
 
     def stop(self):
