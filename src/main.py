@@ -8,7 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from threading import Thread
-from src.game import Game
+from game import Game
 import sys
 import cv2
 
@@ -322,6 +322,8 @@ class UpdateThread(Thread):
         cap.set(4, 600)
 
         while True:
+            if game.hasFinished:
+                continue
             # read a frame from the webcam and pass it on to the game (GestureEngine)
             frame = cap.read()[1]
             game.update(frame)

@@ -12,14 +12,18 @@ class TestGame(TestCase):
         self._game = Game()
 
 
-class TestGameStartAndStop(TestGame):
+class TestGame(TestGame):
 
     def testStart(self):
         self.assertEqual(self._game.hasFinished, True, "Game starts off not finished!")
         self._game.start()
         self.assertEqual(self._game.hasFinished, False, "Game does not start!")
 
+    """
     def testStop(self):  # requires Game.start to work
         self._game.start()
         self._game.stop()
-        self.assertEqual(self._game.hasFinished, True, "Game does not stop!")
+        self.assertEqual(self._game.hasFinished, True, "Game does not stop!")"""
+
+    """def testDisplay(self):
+        self._game.field.display()"""
