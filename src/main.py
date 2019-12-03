@@ -8,6 +8,8 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from threading import Thread
+
+from PyQt5.QtGui import QImage, QPixmap
 from game import Game
 import sys
 import cv2
@@ -16,7 +18,9 @@ import cv2
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(801, 612)
+        MainWindow.setFixedSize(801, 612)
+        self.buttonWidth = 100
+        self.buttonHeight = 50
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
@@ -30,13 +34,22 @@ class Ui_MainWindow(object):
         self.GameScreenProgressBar.setProperty("value", 24)
         self.GameScreenProgressBar.setObjectName("GameScreenProgressBar")
         self.GameScreenButton1 = QtWidgets.QPushButton(self.GameScreen)
-        self.GameScreenButton1.setGeometry(QtCore.QRect(20, 500, 111, 41))
+        self.GameScreenButton1.setGeometry(QtCore.QRect(20, 500, self.buttonWidth, self.buttonHeight))
         self.GameScreenButton1.setObjectName("GameScreenButton1")
         self.GameScreenButton1.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
         self.GameScreenQuit = QtWidgets.QPushButton(self.GameScreen)
-        self.GameScreenQuit.setGeometry(QtCore.QRect(670, 500, 111, 41))
+        self.GameScreenQuit.setGeometry(QtCore.QRect(670, 500, self.buttonWidth, self.buttonHeight))
         self.GameScreenQuit.setObjectName("GameScreenButton1")
         self.GameScreenQuit.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+        self.GSPointsLabel = QtWidgets.QLabel(self.GameScreen)
+        self.GSPointsLabel.setGeometry(QtCore.QRect(20, 5, 221, 31))
+        self.GSPointsLabel.setObjectName("GSPointsLabel")
+        self.GSTimeLabel = QtWidgets.QLabel(self.GameScreen)
+        self.GSTimeLabel.setGeometry(QtCore.QRect(20, 35, 161, 31))
+        self.GSTimeLabel.setObjectName("GSTimeLabel")
+        self.GSStreakLabel = QtWidgets.QLabel(self.GameScreen)
+        self.GSStreakLabel.setGeometry(QtCore.QRect(20, 65, 181, 31))
+        self.GSStreakLabel.setObjectName("GSStreakLabel")
         self.stackedWidget.addWidget(self.GameScreen)
 
         self.DifficultyScreen = QtWidgets.QWidget()
@@ -76,27 +89,27 @@ class Ui_MainWindow(object):
         self.BilateralHeader.setFont(font)
         self.BilateralHeader.setObjectName("BilateralHeader")
         self.BackButtonSettingsScreen = QtWidgets.QPushButton(self.DifficultyScreen)
-        self.BackButtonSettingsScreen.setGeometry(QtCore.QRect(360, 480, 111, 41))
+        self.BackButtonSettingsScreen.setGeometry(QtCore.QRect(360, 480, self.buttonWidth, self.buttonHeight))
         self.BackButtonSettingsScreen.setObjectName("BackButtonSettingsScreen")
         self.BackButtonSettingsScreen.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.stackedWidget.addWidget(self.DifficultyScreen)
 
         self.InstructionsScreen = QtWidgets.QWidget()
         self.InstructionsScreen.setObjectName("InstructionsScreen")
-        self.InstructionsText = QtWidgets.QTextBrowser(self.InstructionsScreen)
-        self.InstructionsText.setGeometry(QtCore.QRect(50, 70, 701, 411))
-        self.InstructionsText.setObjectName("InstructionsText")
         self.InstructionsHeader = QtWidgets.QLabel(self.InstructionsScreen)
-        self.InstructionsHeader.setGeometry(QtCore.QRect(310, 20, 201, 41))
+        self.InstructionsHeader.setGeometry(QtCore.QRect(0, 0, 801, 501))
         font = QtGui.QFont()
         font.setPointSize(28)
         self.InstructionsHeader.setFont(font)
+        self.InstructionsHeader.setPixmap(QPixmap("sprites/instructions.png"))
+        self.InstructionsHeader.setScaledContents(True)
         self.InstructionsHeader.setObjectName("InstructionsHeader")
         self.InstructionsBackButton = QtWidgets.QPushButton(self.InstructionsScreen)
-        self.InstructionsBackButton.setGeometry(QtCore.QRect(360, 500, 111, 41))
+        self.InstructionsBackButton.setGeometry(QtCore.QRect(360, 530, self.buttonWidth, self.buttonHeight))
         self.InstructionsBackButton.setObjectName("pushButton_3")
         self.InstructionsBackButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.stackedWidget.addWidget(self.InstructionsScreen)
+
 
         self.StartScreen = QtWidgets.QWidget()
         self.StartScreen.setObjectName("StartScreen")
@@ -107,11 +120,11 @@ class Ui_MainWindow(object):
         self.BilaturtleText.setFont(font)
         self.BilaturtleText.setObjectName("BilaturtleText")
         self.StartButton = QtWidgets.QPushButton(self.StartScreen)
-        self.StartButton.setGeometry(QtCore.QRect(330, 160, 111, 51))
+        self.StartButton.setGeometry(QtCore.QRect(330, 160, self.buttonWidth, self.buttonHeight))
         self.StartButton.setObjectName("StartButton")
         self.StartButton.clicked.connect(lambda:self.stackedWidget.setCurrentIndex(0))
         self.SettingsButton = QtWidgets.QPushButton(self.StartScreen)
-        self.SettingsButton.setGeometry(QtCore.QRect(330, 230, 111, 51))
+        self.SettingsButton.setGeometry(QtCore.QRect(330, 230, self.buttonWidth, self.buttonHeight))
         self.SettingsButton.setObjectName("SettingsButton")
         self.SettingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
         self.PersonalTable = QtWidgets.QTableWidget(self.StartScreen)
@@ -179,11 +192,11 @@ class Ui_MainWindow(object):
         self.QuitText.setFont(font)
         self.QuitText.setObjectName("QuitText")
         self.QuitYesButton = QtWidgets.QPushButton(self.QuitScreen)
-        self.QuitYesButton.setGeometry(QtCore.QRect(230, 240, 141, 91))
+        self.QuitYesButton.setGeometry(QtCore.QRect(230, 240, self.buttonWidth, self.buttonHeight))
         self.QuitYesButton.setObjectName("QuitYesButton")
         self.QuitYesButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
         self.QuitNoButton = QtWidgets.QPushButton(self.QuitScreen)
-        self.QuitNoButton.setGeometry(QtCore.QRect(420, 240, 141, 91))
+        self.QuitNoButton.setGeometry(QtCore.QRect(420, 240, self.buttonWidth, self.buttonHeight))
         self.QuitNoButton.setObjectName("QuitNoButton")
         self.QuitNoButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.stackedWidget.addWidget(self.QuitScreen)
@@ -210,7 +223,7 @@ class Ui_MainWindow(object):
         self.StreakLabel.setGeometry(QtCore.QRect(270, 360, 181, 31))
         self.StreakLabel.setObjectName("StreakLabel")
         self.ProgressContinueButton = QtWidgets.QPushButton(self.ProgressScreen)
-        self.ProgressContinueButton.setGeometry(QtCore.QRect(320, 430, 111, 41))
+        self.ProgressContinueButton.setGeometry(QtCore.QRect(320, 430, self.buttonWidth, self.buttonHeight))
         self.ProgressContinueButton.setObjectName("ProgressContinueButton")
         self.ProgressContinueButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
         self.stackedWidget.addWidget(self.ProgressScreen)
@@ -239,12 +252,6 @@ class Ui_MainWindow(object):
         self.DifficultyHeader.setText(_translate("MainWindow", "Difficulty"))
         self.BilateralHeader.setText(_translate("MainWindow", "Bilateral Movements"))
         self.BackButtonSettingsScreen.setText(_translate("MainWindow", "Back"))
-        self.InstructionsText.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.25pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">We need some art here</p></body></html>"))
-        self.InstructionsHeader.setText(_translate("MainWindow", "Instructions"))
         self.InstructionsBackButton.setText(_translate("MainWindow", "Back"))
         self.BilaturtleText.setText(_translate("MainWindow", "BILATURTLE"))
         self.StartButton.setText(_translate("MainWindow", "Start"))
@@ -306,6 +313,9 @@ class Ui_MainWindow(object):
         self.PointsLabel.setText(_translate("MainWindow", "Points: Insert points instead"))
         self.TimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
         self.StreakLabel.setText(_translate("MainWindow", "Streak: Insert streak instead"))
+        self.GSPointsLabel.setText(_translate("MainWindow", "Points: Insert points instead"))
+        self.GSTimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
+        self.GSStreakLabel.setText(_translate("MainWindow", "Streak: Insert streak instead"))
         self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
 
 
