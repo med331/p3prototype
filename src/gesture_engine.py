@@ -12,7 +12,7 @@ class GestureEngine:
         self.hands = []
         self.is_holding_turtle = False
         self.middle_point = (sys.maxsize, sys.maxsize)
-        self.two_hands_in_frame = len(self.hands) == 2
+        self.two_hands_in_frame = False
 
     def process_frame(self, frame):
         frame = cv2.flip(frame, flipCode=1)
@@ -36,11 +36,12 @@ class GestureEngine:
         # find blue object above certain size and draw a box around them
         cnt = cv2.findContours(hsv.copy(), cv2.RETR_CCOMP,
                                cv2.CHAIN_APPROX_TC89_KCOS)[1]
+        new_hands = []
         for c in cnt:
             if cv2.contourArea(c) > 800:
 
                 (x, y, w, h) = cv2.boundingRect(c)
-                self.hands.append(Hand(x, y, w, h))
+                new_hands.append(Hand(x, y, w, h))
                 M = cv2.moments(c)
                 cx = int(M['m10'] / M['m00'])
                 cy = int(M['m01'] / M['m00'])
@@ -50,6 +51,8 @@ class GestureEngine:
 
             else:
                 pass
+        self.hands = new_hands
+        self.two_hands_in_frame = len(self.hands) == 2
         if len(centers) >= 2:
             dx = centers[0][0] - centers[1][0]
             dy = centers[0][1] - centers[1][1]

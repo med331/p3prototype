@@ -118,7 +118,7 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
         if self.two_hands_in_frame:
             # TODO: maybe pause the game if this is not the case
             print(self.middle_point)
-            hand_tile = round((4 / 100) * self.middle_point[0])  # what tile the hand is currently over
+            hand_tile = round((4 / 800) * self.middle_point[0])  # what tile the hand is currently over
             if self.last_is_holding_turtle and not self.is_holding_turtle:  # register turtle pickup
                 if hand_tile == self.field.turtleXPosition:
                     # TODO: in this case, the turtle should be rendered on the middle_point and not the tiles

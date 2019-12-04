@@ -14,6 +14,8 @@ from game import Game
 import sys
 import cv2
 
+import random
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow, game):
@@ -47,6 +49,11 @@ class Ui_MainWindow(object):
         self.GameScreenQuit.setGeometry(QtCore.QRect(670, 500, self.buttonWidth, self.buttonHeight))
         self.GameScreenQuit.setObjectName("GameScreenButton1")
         self.GameScreenQuit.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+        self.GameBilaturtle = QtWidgets.QLabel(self.GameScreen)
+        self.GameBilaturtle.setGeometry(QtCore.QRect(290, 340, 200, 220))
+        self.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
+        self.GameBilaturtle.setScaledContents(True)
+        self.GameBilaturtle.setObjectName("GameBilaturtle")
         self.GSPointsLabel = QtWidgets.QLabel(self.GameScreen)
         self.GSPointsLabel.setGeometry(QtCore.QRect(20, 5, 221, 31))
         self.GSPointsLabel.setObjectName("GSPointsLabel")
@@ -315,10 +322,13 @@ class Ui_MainWindow(object):
         self.PointsLabel.setText(_translate("MainWindow", "Points: Insert points instead"))
         self.TimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
         self.StreakLabel.setText(_translate("MainWindow", "Streak: Insert streak instead"))
-        self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % game.currentPoints))
+        self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % game.two_hands_in_frame))
         self.GSTimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
         self.GSStreakLabel.setText(_translate("MainWindow", "Streak: Insert streak instead"))
         self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
+        if game.two_hands_in_frame:
+            self.Bilaturtle.setGeometry(QtCore.QRect(game.hands[0].x, game.hands[0].y, 200, 220))
+            self.GameBilaturtle.setGeometry(QtCore.QRect(game.hands[0].x, game.hands[0].y, 100, 110))
 
 
 class UpdateThread(Thread):
