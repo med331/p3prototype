@@ -109,7 +109,6 @@ class Ui_MainWindow(object):
         self.InstructionsBackButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.stackedWidget.addWidget(self.InstructionsScreen)
 
-
         self.StartScreen = QtWidgets.QWidget()
         self.StartScreen.setObjectName("StartScreen")
         self.BilaturtleText = QtWidgets.QLabel(self.StartScreen)
