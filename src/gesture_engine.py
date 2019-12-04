@@ -12,6 +12,7 @@ class GestureEngine:
         self.hands = []
         self.is_holding_turtle = False
         self.middle_point = (sys.maxsize, sys.maxsize)
+        self.two_hands_in_frame = len(self.hands) == 2
 
     def process_frame(self, frame):
         frame = cv2.flip(frame, flipCode=1)

@@ -16,7 +16,8 @@ import cv2
 
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
+    def setupUi(self, MainWindow, game):
+        self.game = game
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedSize(801, 612)
         self.buttonWidth = 100
@@ -313,17 +314,23 @@ class Ui_MainWindow(object):
         self.PointsLabel.setText(_translate("MainWindow", "Points: Insert points instead"))
         self.TimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
         self.StreakLabel.setText(_translate("MainWindow", "Streak: Insert streak instead"))
-        self.GSPointsLabel.setText(_translate("MainWindow", "Points: Insert points instead"))
+        self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % game.currentPoints))
         self.GSTimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
         self.GSStreakLabel.setText(_translate("MainWindow", "Streak: Insert streak instead"))
         self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
 
 
 class UpdateThread(Thread):
+
+    def __init__(self, main_window, main_main_window, game):
+        super().__init__()
+        self.main_window = main_window
+        self.main_main_window = main_main_window
+        self.game = game
+
     def run(self):
 
         # initialize game
-        game = Game()
         game.start()
 
         # initialize OpenCV and webcam capture
@@ -337,18 +344,21 @@ class UpdateThread(Thread):
             # read a frame from the webcam and pass it on to the game (GestureEngine)
             frame = cap.read()[1]
             game.update(frame)
+            self.main_window.retranslateUi(self.main_main_window)  # updates the entire gui
 
 
 if __name__ == "__main__":
+
+    game = Game()
 
     # set up GUI
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
+    ui.setupUi(MainWindow, game)
 
     # set up game-updating thread
-    t = UpdateThread()
+    t = UpdateThread(ui, MainWindow, game)
 
     # launch app
     MainWindow.show()
