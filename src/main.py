@@ -20,6 +20,9 @@ import random
 
 
 class Ui_MainWindow(object):
+    def __init__(self):
+        self.field = []
+
     def setupUi(self, MainWindow, game):
         self.game = game
         MainWindow.setObjectName("MainWindow")
@@ -38,6 +41,10 @@ class Ui_MainWindow(object):
         self.GameScreenProgressBar.setGeometry(QtCore.QRect(660, 10, 118, 23))
         self.GameScreenProgressBar.setProperty("value", 24)
         self.GameScreenProgressBar.setObjectName("GameScreenProgressBar")
+        for i in range(24):
+            widget = QtWidgets.QLabel(self.GameScreen)
+            widget.setObjectName("FieldTile%s" %i)
+            self.field.append(widget)
         self.GameScreenButton1 = QtWidgets.QPushButton(self.GameScreen)
         self.GameScreenButton1.setGeometry(QtCore.QRect(20, 500, self.buttonWidth, self.buttonHeight))
         self.GameScreenButton1.setObjectName("GameScreenButton1")
@@ -358,52 +365,56 @@ class Ui_MainWindow(object):
             except:
                 pass
 
-            #TODO: draw the game field
-            for x in range(len(game.field.fieldArray)):
-                for y in range(len(game.field.fieldArray[x])):
-                    pos_x = 200 + x * (50 * (x - 1))
-                    pos_y = 200 + y * (50 * (y - 1))
-                    new_tiles = int((time.time() - game.startTime) - game.speed)
-                    pos_y = pos_y - (new_tiles * 10)
+            if True:#(time.time() - game.startTime) % 200 == 0:
+                #TODO: draw the game field
 
-                    '''self.GameBilaturtle = QtWidgets.QLabel(self.GameScreen)
-                    self.GameBilaturtle.setGeometry(QtCore.QRect(290, 340, 200, 220))
-                    self.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
-                    self.GameBilaturtle.setScaledContents(True)
-                    self.GameBilaturtle.setObjectName("GameBilaturtle")'''
+                for x in range(len(game.field.fieldArray)):
+                    for y in range(len(game.field.fieldArray[x])):
+                        pos_x = 200 + x * (50 * (x - 1))
+                        pos_y = 200 + y * (50 * (y - 1))
+                        new_tiles = int((time.time() - game.startTime) - game.speed)
+                        #print("new_tiles: %s" % new_tiles)
+                        pos_y = pos_y - (new_tiles * 10)
 
-                    # draw appropriate sprite
-                    type = game.field.fieldArray[x][y]
-                    new_sprite = QtWidgets.QLabel(self.GameScreen)
-                    new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
-                    #new_sprite.setText("Peter is a douchebag")
-                    print("x: %s and y: %s" % (pos_x, pos_y))
-                    if type == 0 or type == 1:
-                        # TODO: draw nothing
-                        new_sprite.setPixmap(QPixmap("sprites/Plain.png"))
-                        new_sprite.setScaledContents(True)
-                        new_sprite.setObjectName("PlainTile%s%s" % (x, y))
-                        pass
-                    if type == 1:
-                        new_sprite = QtWidgets.QLabel(self.GameScreen)
+                        self.GameBilaturtle = QtWidgets.QLabel(self.GameScreen)
+                        self.GameBilaturtle.setGeometry(QtCore.QRect(290, 340, 200, 220))
+                        self.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
+                        self.GameBilaturtle.setScaledContents(True)
+                        self.GameBilaturtle.setObjectName("GameBilaturtle")
+
+                        # draw appropriate sprite
+                        type = game.field.fieldArray[x][y]
+                        new_sprite = self.field[y + (4 * x)]
+
                         new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
-                        new_sprite.setPixmap(QPixmap("sprites/Carrot.png"))
-                        new_sprite.setScaledContents(True)
-                        new_sprite.setObjectName("Pickup%s%s" % (x, y))
-                        # TODO: draw pickupsF
-                        pass
-                    elif type == 2:
-                        new_sprite.setPixmap(QPixmap("sprites/Seagull.png"))
-                        new_sprite.setScaledContents(True)
-                        new_sprite.setObjectName("Seagull%s%s" % (x, y))
-                        # TODO: draw seaguls
-                        pass
-                    else:
-                        new_sprite.setPixmap(QPixmap("sprites/Lake.png"))
-                        new_sprite.setScaledContents(True)
-                        new_sprite.setObjectName("River%s%s" % (x, y))
-                        # TODO: draw water
-                        pass
+                        new_sprite.setText("Peter is a douchebag")
+                        print("x: %s and y: %s" % (pos_x, pos_y))
+                        if type == 0 or type == 1:
+                            # TODO: draw nothing
+                            new_sprite.setPixmap(QPixmap("sprites/Plain.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("PlainTile%s%s" % (x, y))
+                            pass
+                        if type == 1:
+                            new_sprite = QtWidgets.QLabel(self.GameScreen)
+                            new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
+                            new_sprite.setPixmap(QPixmap("sprites/Carrot.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("Pickup%s%s" % (x, y))
+                            # TODO: draw pickupsF
+                            pass
+                        elif type == 2:
+                            new_sprite.setPixmap(QPixmap("sprites/Seagull.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("Seagull%s%s" % (x, y))
+                            # TODO: draw seaguls
+                            pass
+                        else:
+                            new_sprite.setPixmap(QPixmap("sprites/Lake.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("River%s%s" % (x, y))
+                            # TODO: draw water
+                            pass
 
 
 class UpdateThread(Thread):
