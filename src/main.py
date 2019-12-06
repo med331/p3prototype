@@ -5,6 +5,7 @@
 # Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
+import time
 from math import floor
 
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -33,11 +34,6 @@ class Ui_MainWindow(object):
 
         self.GameScreen = QtWidgets.QWidget()
         self.GameScreen.setObjectName("GameScreen")
-        self.GameBackground = QtWidgets.QLabel(self.GameScreen)
-        self.GameBackground.setGeometry(QtCore.QRect(0, 0, 801, 612))
-        self.GameBackground.setPixmap(QPixmap("sprites/Plain.png"))
-        self.GameBackground.setScaledContents(True)
-        self.GameBackground.setObjectName("GameBackground")
         self.GameScreenProgressBar = QtWidgets.QProgressBar(self.GameScreen)
         self.GameScreenProgressBar.setGeometry(QtCore.QRect(660, 10, 118, 23))
         self.GameScreenProgressBar.setProperty("value", 24)
@@ -342,7 +338,7 @@ class Ui_MainWindow(object):
                 self.Bilaturtle.setGeometry(QtCore.QRect(game.hands[0].x, game.hands[0].y, 200, 220))
                 if game.is_holding_turtle:
                     self.GameBilaturtle.setGeometry(
-                        QtCore.QRect(game.middle_point.x - 50, game.middle_point.y - 55, 100, 110))
+                        QtCore.QRect(game.middle_point[0] - 50, game.middle_point[1] - 55, 100, 110))
                     # TODO: draw hand_tile
                 else:
                     x_position = 150 + floor((500 / 3) * game.field.turtleXPosition)
@@ -361,6 +357,53 @@ class Ui_MainWindow(object):
                     QtCore.QRect(game.hands[1].x, game.hands[1].y, 200, 220))
             except:
                 pass
+
+            #TODO: draw the game field
+            for x in range(len(game.field.fieldArray)):
+                for y in range(len(game.field.fieldArray[x])):
+                    pos_x = 200 + x * (50 * (x - 1))
+                    pos_y = 200 + y * (50 * (y - 1))
+                    new_tiles = int((time.time() - game.startTime) - game.speed)
+                    pos_y = pos_y - (new_tiles * 10)
+
+                    '''self.GameBilaturtle = QtWidgets.QLabel(self.GameScreen)
+                    self.GameBilaturtle.setGeometry(QtCore.QRect(290, 340, 200, 220))
+                    self.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
+                    self.GameBilaturtle.setScaledContents(True)
+                    self.GameBilaturtle.setObjectName("GameBilaturtle")'''
+
+                    # draw appropriate sprite
+                    type = game.field.fieldArray[x][y]
+                    new_sprite = QtWidgets.QLabel(self.GameScreen)
+                    new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
+                    #new_sprite.setText("Peter is a douchebag")
+                    print("x: %s and y: %s" % (pos_x, pos_y))
+                    if type == 0 or type == 1:
+                        # TODO: draw nothing
+                        new_sprite.setPixmap(QPixmap("sprites/Plain.png"))
+                        new_sprite.setScaledContents(True)
+                        new_sprite.setObjectName("PlainTile%s%s" % (x, y))
+                        pass
+                    if type == 1:
+                        new_sprite = QtWidgets.QLabel(self.GameScreen)
+                        new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
+                        new_sprite.setPixmap(QPixmap("sprites/Carrot.png"))
+                        new_sprite.setScaledContents(True)
+                        new_sprite.setObjectName("Pickup%s%s" % (x, y))
+                        # TODO: draw pickupsF
+                        pass
+                    elif type == 2:
+                        new_sprite.setPixmap(QPixmap("sprites/Seagull.png"))
+                        new_sprite.setScaledContents(True)
+                        new_sprite.setObjectName("Seagull%s%s" % (x, y))
+                        # TODO: draw seaguls
+                        pass
+                    else:
+                        new_sprite.setPixmap(QPixmap("sprites/Lake.png"))
+                        new_sprite.setScaledContents(True)
+                        new_sprite.setObjectName("River%s%s" % (x, y))
+                        # TODO: draw water
+                        pass
 
 
 class UpdateThread(Thread):

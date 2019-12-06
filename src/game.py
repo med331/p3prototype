@@ -92,7 +92,7 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
     currentStreak = 0
     currentPoints = 0
     difficulty = 1  # difficulty (the higher the harder, 1 to 5)
-    speed = 0.6  # how many seconds in between movements
+    speed = 4  # how many seconds in between movements
     field = GameField(difficulty)
     kbPressed = 0
     last_is_holding_turtle = False
@@ -120,7 +120,8 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
         self.process_frame(frame)
 
         self.hand_tile = floor((3 / 550) * self.middle_point[0])  # TODO: debuggin' dat shit
-        print("%s from %s" % (self.hand_tile, self.middle_point[0]))
+        #print("%s from %s" % (self.hand_tile, self.middle_point[0]))
+        #print(self.middle_point)
         if self.two_hands_in_frame:
             # TODO: maybe pause the game if this is not the case
             #print("%s and %s" % (self.last_is_holding_turtle, self.is_holding_turtle))
