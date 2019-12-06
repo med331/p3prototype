@@ -1,9 +1,11 @@
 """
         Game must maintain the game state and handle the logic of the game itself
 """
-
+import sys
 import time
 import random
+from math import floor
+
 from gesture_engine import GestureEngine
 
 
@@ -94,6 +96,7 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
     field = GameField(difficulty)
     kbPressed = 0
     last_is_holding_turtle = False
+    hand_tile = -2  # an arbitrary value that keeps the turtle off the screen
 
     def __init__(self):
         super(Game, self).__init__()  # calling GestureEngine constructor
@@ -111,22 +114,24 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
 
     def update(self, frame):
 
-        print(self.is_holding_turtle)  # debugging
+        #print(self.is_holding_turtle)  # debugging
 
         # process updates from GestureEngine
         self.process_frame(frame)
+
+        self.hand_tile = floor((3 / 550) * self.middle_point[0])  # TODO: debuggin' dat shit
+        print("%s from %s" % (self.hand_tile, self.middle_point[0]))
         if self.two_hands_in_frame:
             # TODO: maybe pause the game if this is not the case
-            print(self.middle_point)
-            hand_tile = round((4 / 800) * self.middle_point[0])  # what tile the hand is currently over
-            if self.last_is_holding_turtle and not self.is_holding_turtle:  # register turtle pickup
-                if hand_tile == self.field.turtleXPosition:
+            #print("%s and %s" % (self.last_is_holding_turtle, self.is_holding_turtle))
+            if not self.last_is_holding_turtle and self.is_holding_turtle:  # register turtle pickup
+                if self.hand_tile == self.field.turtleXPosition:  # TODO: remember to also check y pos
                     # TODO: in this case, the turtle should be rendered on the middle_point and not the tiles
-                    self.field.moveTurtle("Jump")
-            if not self.last_is_holding_turtle and self.is_holding_turtle:  # register turtle drop
-                self.field.turtleXPosition = hand_tile
+                    self.field.turtleZPosition = 1
+            if self.last_is_holding_turtle and not self.is_holding_turtle:  # register turtle drop
+                self.field.turtleXPosition = self.hand_tile
                 self.field.turtleZPosition = 0
-            self.last_is_holding_turtle = self.is_holding_turtle
+            self.last_is_holding_turtle = self.is_holding_turtle is True
 
         # update playing field after a specific amount of time
         if time.time() - self.startTime >= self.speed:
@@ -134,9 +139,9 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
             self.field.moveField()
 
             # TODO: debugging
-            movement = random.randint(0, 1)
+            '''movement = random.randint(0, 1)
             if movement == 0:
                 self.field.moveTurtle("Left")
             elif movement == 1:
                 self.field.moveTurtle("Right")
-            self.field.checkTurtleField()
+            self.field.checkTurtleField()'''

@@ -5,6 +5,7 @@
 # Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
+from math import floor
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from threading import Thread
@@ -54,6 +55,16 @@ class Ui_MainWindow(object):
         self.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
         self.GameBilaturtle.setScaledContents(True)
         self.GameBilaturtle.setObjectName("GameBilaturtle")
+        self.GameLeftHand = QtWidgets.QLabel(self.GameScreen)
+        self.GameLeftHand.setGeometry(QtCore.QRect(290, 340, 200, 220))
+        self.GameLeftHand.setPixmap(QPixmap("sprites/sideways_left_hand.png"))
+        self.GameLeftHand.setScaledContents(True)
+        self.GameLeftHand.setObjectName("GameLeftHand")
+        self.GameRightHand = QtWidgets.QLabel(self.GameScreen)
+        self.GameRightHand.setGeometry(QtCore.QRect(290, 340, 200, 220))
+        self.GameRightHand.setPixmap(QPixmap("sprites/sideways_right_hand.png"))
+        self.GameRightHand.setScaledContents(True)
+        self.GameRightHand.setObjectName("GameLeftHand")
         self.GSPointsLabel = QtWidgets.QLabel(self.GameScreen)
         self.GSPointsLabel.setGeometry(QtCore.QRect(20, 5, 221, 31))
         self.GSPointsLabel.setObjectName("GSPointsLabel")
@@ -322,13 +333,34 @@ class Ui_MainWindow(object):
         self.PointsLabel.setText(_translate("MainWindow", "Points: Insert points instead"))
         self.TimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
         self.StreakLabel.setText(_translate("MainWindow", "Streak: Insert streak instead"))
-        self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % game.two_hands_in_frame))
+        self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % game.is_holding_turtle))
         self.GSTimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
         self.GSStreakLabel.setText(_translate("MainWindow", "Streak: Insert streak instead"))
         self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
         if game.two_hands_in_frame:
-            self.Bilaturtle.setGeometry(QtCore.QRect(game.hands[0].x, game.hands[0].y, 200, 220))
-            self.GameBilaturtle.setGeometry(QtCore.QRect(game.hands[0].x, game.hands[0].y, 100, 110))
+            try:
+                self.Bilaturtle.setGeometry(QtCore.QRect(game.hands[0].x, game.hands[0].y, 200, 220))
+                if game.is_holding_turtle:
+                    self.GameBilaturtle.setGeometry(
+                        QtCore.QRect(game.middle_point.x - 50, game.middle_point.y - 55, 100, 110))
+                    # TODO: draw hand_tile
+                else:
+                    x_position = 150 + floor((500 / 3) * game.field.turtleXPosition)
+                    self.GameBilaturtle.setGeometry(
+                        QtCore.QRect(x_position - 50, 250, 100, 110))
+
+                # TODO: this is debugging only
+                '''x_position = 150 + floor((500 / 3) * game.hand_tile)
+                self.GameBilaturtle.setGeometry(
+                    QtCore.QRect(x_position - 50, 250, 100, 110))'''
+
+                # draw hands
+                self.GameLeftHand.setGeometry(
+                    QtCore.QRect(game.hands[0].x, game.hands[0].y, 200, 220))
+                self.GameRightHand.setGeometry(
+                    QtCore.QRect(game.hands[1].x, game.hands[1].y, 200, 220))
+            except:
+                pass
 
 
 class UpdateThread(Thread):

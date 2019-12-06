@@ -41,6 +41,7 @@ class GestureEngine:
             if cv2.contourArea(c) > 800:
 
                 (x, y, w, h) = cv2.boundingRect(c)
+                x = x - 250  # offset hand positions to the middle of the screen
                 new_hands.append(Hand(x, y, w, h))
                 M = cv2.moments(c)
                 cx = int(M['m10'] / M['m00'])
@@ -51,7 +52,7 @@ class GestureEngine:
 
             else:
                 pass
-        self.hands = new_hands
+        self.hands = sorted(new_hands, key=lambda elem: elem.x, reverse=False)  # place hands from left to right
         self.two_hands_in_frame = len(self.hands) == 2
         if len(centers) >= 2:
             dx = centers[0][0] - centers[1][0]
@@ -65,9 +66,9 @@ class GestureEngine:
                 self.is_holding_turtle = False
                 col = (0, 0, 255)
             cv2.line(frame, (centers[0][0], centers[0][1]), (centers[1][0], centers[1][1]), col, 5)
-            cv2.circle(frame, (int((centers[0][0] + centers[1][0]) / 2), int((centers[0][1] + centers[1][1]) / 2)), 10,
-                       col, -1)
-            self.middle_point = (int((centers[0][0] + centers[1][0]) / 2),
+            cv2.circle(frame, (int((centers[0][0] + centers[1][0]) / 2),
+                               int((centers[0][1] + centers[1][1]) / 2)), 10, col, -1)
+            self.middle_point = (int((centers[0][0] + centers[1][0]) / 2 - 250),
                                  int((centers[0][1] + centers[1][1]) / 2))
 
         return frame
