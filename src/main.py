@@ -12,11 +12,117 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from threading import Thread
 
 from PyQt5.QtGui import QImage, QPixmap
-from game import Game
+from src.game import Game
+from src.gesture_engine import Hand
 import sys
 import cv2
 
-import random
+
+class GameWidget(QtWidgets.QWidget):
+    def __init__(self, game, program):
+        super(GameWidget, self).__init__()
+        self.program = program
+        self.game = game
+        self.game.two_hands_in_frame = True
+
+    def mouseMoveEvent(self, a0: QtGui.QMouseEvent) -> None:
+        (x, y) = (a0.globalX(), a0.globalY())
+        (x, y) = (x - 650, y - 300)
+        self.game.middle_point = (x + 100, y)
+        new_hands = []
+        new_hands.append(Hand(x - 100, y, 1, 1))
+        new_hands.append(Hand(x + 100, y, 1, 1))
+        self.game.hands = new_hands
+        self.draw()
+
+    def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
+        self.game.is_holding_turtle = True
+        time.sleep(0.05)  # add delay to ensure GestureEngine update before drawing
+        self.draw()
+
+    def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
+        self.game.is_holding_turtle = False
+        time.sleep(0.05)  # add delay to ensure GestureEngine update before drawing
+        self.draw()
+
+    def draw(self):
+        program = self.program
+        if game.two_hands_in_frame:
+            try:
+                program.Bilaturtle.setGeometry(QtCore.QRect(game.hands[0].x, game.hands[0].y, 200, 220))
+                if game.is_holding_turtle:
+                    program.GameBilaturtle.setGeometry(
+                        QtCore.QRect(game.middle_point[0] - 50, game.middle_point[1] - 55, 100, 110))
+                else:
+                    #print(game.field.turtleXPosition)
+                    x_position = 150 + floor((500 / 3) * game.field.turtleXPosition)
+                    program.GameBilaturtle.setGeometry(
+                        QtCore.QRect(x_position - 50, 250, 100, 110))
+
+                # TODO: this is debugging only
+                '''x_position = 150 + floor((500 / 3) * game.hand_tile)
+                self.GameBilaturtle.setGeometry(
+                    QtCore.QRect(x_position - 50, 250, 100, 110))'''
+
+                # draw hands
+                program.GameLeftHand.setGeometry(
+                    QtCore.QRect(game.hands[0].x, game.hands[0].y, 200, 220))
+                program.GameRightHand.setGeometry(
+                    QtCore.QRect(game.hands[1].x, game.hands[1].y, 200, 220))
+            except:
+                pass
+
+            #print(time.time() - game.startTime)
+            if False: #float(int(time.time() - game.startTime)) == time.time() - game.startTime:  # (time.time() - game.startTime) %== 0:
+                # TODO: draw the game field
+
+                for x in range(len(game.field.fieldArray)):
+                    for y in range(len(game.field.fieldArray[x])):
+                        pos_x = 200 + x * (50 * (x - 1))
+                        pos_y = 200 + y * (50 * (y - 1))
+                        new_tiles = int((time.time() - game.startTime) - game.speed)
+                        # print("new_tiles: %s" % new_tiles)
+                        pos_y = pos_y - (new_tiles * 10)
+
+                        program.GameBilaturtle = QtWidgets.QLabel(program.GameScreen)
+                        program.GameBilaturtle.setGeometry(QtCore.QRect(290, 340, 200, 220))
+                        program.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
+                        program.GameBilaturtle.setScaledContents(True)
+                        program.GameBilaturtle.setObjectName("GameBilaturtle")
+
+                        # draw appropriate sprite
+                        type = game.field.fieldArray[x][y]
+                        new_sprite = program.field[y + (4 * x)]
+
+                        new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
+                        new_sprite.setText("Peter is a douchebag")
+                        print("x: %s and y: %s" % (pos_x, pos_y))
+                        if type == 0 or type == 1:
+                            # TODO: draw nothing
+                            new_sprite.setPixmap(QPixmap("sprites/Plain.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("PlainTile%s%s" % (x, y))
+                            pass
+                        if type == 1:
+                            new_sprite = QtWidgets.QLabel(program.GameScreen)
+                            new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
+                            new_sprite.setPixmap(QPixmap("sprites/Carrot.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("Pickup%s%s" % (x, y))
+                            # TODO: draw pickupsF
+                            pass
+                        elif type == 2:
+                            new_sprite.setPixmap(QPixmap("sprites/Seagull.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("Seagull%s%s" % (x, y))
+                            # TODO: draw seaguls
+                            pass
+                        else:
+                            new_sprite.setPixmap(QPixmap("sprites/Lake.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("River%s%s" % (x, y))
+                            # TODO: draw water
+                            pass
 
 
 class Ui_MainWindow(object):
@@ -35,7 +141,7 @@ class Ui_MainWindow(object):
         self.stackedWidget.setGeometry(QtCore.QRect(0, 0, 801, 581))
         self.stackedWidget.setObjectName("stackedWidget")
 
-        self.GameScreen = QtWidgets.QWidget()
+        self.GameScreen = GameWidget(self.game, self)
         self.GameScreen.setObjectName("GameScreen")
         self.GameScreenProgressBar = QtWidgets.QProgressBar(self.GameScreen)
         self.GameScreenProgressBar.setGeometry(QtCore.QRect(660, 10, 118, 23))
@@ -43,7 +149,7 @@ class Ui_MainWindow(object):
         self.GameScreenProgressBar.setObjectName("GameScreenProgressBar")
         for i in range(24):
             widget = QtWidgets.QLabel(self.GameScreen)
-            widget.setObjectName("FieldTile%s" %i)
+            widget.setObjectName("FieldTile%s" % i)
             self.field.append(widget)
         self.GameScreenButton1 = QtWidgets.QPushButton(self.GameScreen)
         self.GameScreenButton1.setGeometry(QtCore.QRect(20, 500, self.buttonWidth, self.buttonHeight))
@@ -145,7 +251,7 @@ class Ui_MainWindow(object):
         self.StartButton = QtWidgets.QPushButton(self.StartScreen)
         self.StartButton.setGeometry(QtCore.QRect(330, 160, self.buttonWidth, self.buttonHeight))
         self.StartButton.setObjectName("StartButton")
-        self.StartButton.clicked.connect(lambda:self.stackedWidget.setCurrentIndex(0))
+        self.StartButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
         self.SettingsButton = QtWidgets.QPushButton(self.StartScreen)
         self.SettingsButton.setGeometry(QtCore.QRect(330, 230, self.buttonWidth, self.buttonHeight))
         self.SettingsButton.setObjectName("SettingsButton")
@@ -340,81 +446,6 @@ class Ui_MainWindow(object):
         self.GSTimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
         self.GSStreakLabel.setText(_translate("MainWindow", "Streak: Insert streak instead"))
         self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
-        if game.two_hands_in_frame:
-            try:
-                self.Bilaturtle.setGeometry(QtCore.QRect(game.hands[0].x, game.hands[0].y, 200, 220))
-                if game.is_holding_turtle:
-                    self.GameBilaturtle.setGeometry(
-                        QtCore.QRect(game.middle_point[0] - 50, game.middle_point[1] - 55, 100, 110))
-                    # TODO: draw hand_tile
-                else:
-                    x_position = 150 + floor((500 / 3) * game.field.turtleXPosition)
-                    self.GameBilaturtle.setGeometry(
-                        QtCore.QRect(x_position - 50, 250, 100, 110))
-
-                # TODO: this is debugging only
-                '''x_position = 150 + floor((500 / 3) * game.hand_tile)
-                self.GameBilaturtle.setGeometry(
-                    QtCore.QRect(x_position - 50, 250, 100, 110))'''
-
-                # draw hands
-                self.GameLeftHand.setGeometry(
-                    QtCore.QRect(game.hands[0].x, game.hands[0].y, 200, 220))
-                self.GameRightHand.setGeometry(
-                    QtCore.QRect(game.hands[1].x, game.hands[1].y, 200, 220))
-            except:
-                pass
-
-            if True:#(time.time() - game.startTime) % 200 == 0:
-                #TODO: draw the game field
-
-                for x in range(len(game.field.fieldArray)):
-                    for y in range(len(game.field.fieldArray[x])):
-                        pos_x = 200 + x * (50 * (x - 1))
-                        pos_y = 200 + y * (50 * (y - 1))
-                        new_tiles = int((time.time() - game.startTime) - game.speed)
-                        #print("new_tiles: %s" % new_tiles)
-                        pos_y = pos_y - (new_tiles * 10)
-
-                        self.GameBilaturtle = QtWidgets.QLabel(self.GameScreen)
-                        self.GameBilaturtle.setGeometry(QtCore.QRect(290, 340, 200, 220))
-                        self.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
-                        self.GameBilaturtle.setScaledContents(True)
-                        self.GameBilaturtle.setObjectName("GameBilaturtle")
-
-                        # draw appropriate sprite
-                        type = game.field.fieldArray[x][y]
-                        new_sprite = self.field[y + (4 * x)]
-
-                        new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
-                        new_sprite.setText("Peter is a douchebag")
-                        print("x: %s and y: %s" % (pos_x, pos_y))
-                        if type == 0 or type == 1:
-                            # TODO: draw nothing
-                            new_sprite.setPixmap(QPixmap("sprites/Plain.png"))
-                            new_sprite.setScaledContents(True)
-                            new_sprite.setObjectName("PlainTile%s%s" % (x, y))
-                            pass
-                        if type == 1:
-                            new_sprite = QtWidgets.QLabel(self.GameScreen)
-                            new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
-                            new_sprite.setPixmap(QPixmap("sprites/Carrot.png"))
-                            new_sprite.setScaledContents(True)
-                            new_sprite.setObjectName("Pickup%s%s" % (x, y))
-                            # TODO: draw pickupsF
-                            pass
-                        elif type == 2:
-                            new_sprite.setPixmap(QPixmap("sprites/Seagull.png"))
-                            new_sprite.setScaledContents(True)
-                            new_sprite.setObjectName("Seagull%s%s" % (x, y))
-                            # TODO: draw seaguls
-                            pass
-                        else:
-                            new_sprite.setPixmap(QPixmap("sprites/Lake.png"))
-                            new_sprite.setScaledContents(True)
-                            new_sprite.setObjectName("River%s%s" % (x, y))
-                            # TODO: draw water
-                            pass
 
 
 class UpdateThread(Thread):
@@ -442,10 +473,10 @@ class UpdateThread(Thread):
             frame = cap.read()[1]
             game.update(frame)
             self.main_window.retranslateUi(self.main_main_window)  # updates the entire gui
+            time.sleep(0.01)
 
 
 if __name__ == "__main__":
-
     game = Game()
 
     # set up GUI

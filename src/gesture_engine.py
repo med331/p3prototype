@@ -15,6 +15,7 @@ class GestureEngine:
         self.two_hands_in_frame = False
 
     def process_frame(self, frame):
+
         frame = cv2.flip(frame, flipCode=1)
         centers = []
         # Our operations on the frame come here

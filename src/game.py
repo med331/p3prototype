@@ -26,18 +26,16 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
         self.seagullChance = self.seagullChance * self.difficulty
         for i in range(self.sizeX):  # reset the bottom row
             self.fieldArray.append([0] * self.sizeY)
-        #self.fieldArray[self.turtleXPosition][0] = 4  # place the turtle
 
-    def moveTurtle(self, _input):
-        self.turtleZPosition = 0
-        if _input == "Left":
-            if self.turtleXPosition>0:
-                self.turtleXPosition-=1
-        elif _input == "Right":
-            if self.turtleXPosition<self.sizeX-1:
-                self.turtleXPosition+=1
-        elif _input == "Jump":
-            self.turtleZPosition+=1
+    def moveTurtle(self, index):  # NOTE: this method has been rewritten from Fabian's version
+        if index >= self.sizeX:
+            self.turtleXPosition = self.sizeX - 1
+        elif index < 0:
+            self.turtleXPosition = 0
+        else:
+            self.turtleXPosition = index
+        #print("bool: %s and expected: %s and got: %s" % (index >= self.sizeX, self.sizeX - 1, self.turtleXPosition))
+        #print("index: %s and position: %s" % (index, self.turtleXPosition))
 
     def moveField(self):  # move all fields
         for x in range(len(self.fieldArray)):
@@ -91,7 +89,7 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
 class Game(GestureEngine):  # please see tests/test_game for how to test your code
     currentStreak = 0
     currentPoints = 0
-    difficulty = 1  # difficulty (the higher the harder, 1 to 5)
+    difficulty = 1  # difficulty (the higher the harder, 1 to 5 (can maybe go higher (don't try)))
     speed = 4  # how many seconds in between movements
     field = GameField(difficulty)
     kbPressed = 0
@@ -114,10 +112,8 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
 
     def update(self, frame):
 
-        #print(self.is_holding_turtle)  # debugging
-
         # process updates from GestureEngine
-        self.process_frame(frame)
+        #self.process_frame(frame)
 
         self.hand_tile = floor((3 / 550) * self.middle_point[0])  # TODO: debuggin' dat shit
         #print("%s from %s" % (self.hand_tile, self.middle_point[0]))
@@ -127,12 +123,11 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
             #print("%s and %s" % (self.last_is_holding_turtle, self.is_holding_turtle))
             if not self.last_is_holding_turtle and self.is_holding_turtle:  # register turtle pickup
                 if self.hand_tile == self.field.turtleXPosition:  # TODO: remember to also check y pos
-                    # TODO: in this case, the turtle should be rendered on the middle_point and not the tiles
                     self.field.turtleZPosition = 1
             if self.last_is_holding_turtle and not self.is_holding_turtle:  # register turtle drop
-                self.field.turtleXPosition = self.hand_tile
+                self.field.moveTurtle(self.hand_tile)
                 self.field.turtleZPosition = 0
-            self.last_is_holding_turtle = self.is_holding_turtle is True
+            self.last_is_holding_turtle = self.is_holding_turtle is True  # force assignment by value
 
         # update playing field after a specific amount of time
         if time.time() - self.startTime >= self.speed:
