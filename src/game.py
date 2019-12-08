@@ -1,12 +1,11 @@
 """
         Game must maintain the game state and handle the logic of the game itself
 """
-import sys
 import time
 import random
 from math import floor
 
-from gesture_engine import GestureEngine
+from src.gesture_engine import GestureEngine
 
 
 class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
@@ -44,11 +43,11 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
             for y in range(1, len(self.fieldArray[x])):
                 self.fieldArray[x][y - 1] = self.fieldArray[x][y]
         self.generateRow()
-        self.fieldArray[self.turtleXPosition][0] = 4  # place the turtle
+        #self.fieldArray[self.turtleXPosition][0] = 4  # place the turtle
 
     def generateRow(self):  # generate new row
         chance = random.randint(0, 100)
-        print("New tiles were generated")
+        print("New tiles were generated:")
         if chance < self.riverChance and self.fieldArray[0][self.sizeY-2] != 3:  # roll for river
             for x in range(len(self.fieldArray)):
                 self.fieldArray[x][self.sizeY - 1] = 3
@@ -61,9 +60,10 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
                     self.fieldArray[x][self.sizeY - 1] = 1
                 else:
                     self.fieldArray[x][self.sizeY - 1] = 0
+        self.display()
 
     def checkTurtleField(self):
-        gameObject = self.fieldArray[self.turtleXPosition][0]
+        gameObject = self.fieldArray[self.turtleXPosition][1]
         if gameObject == 2 or gameObject == 3:
             if self.turtleZPosition == 0:
                 Game.currentStreak = 0

@@ -24,6 +24,7 @@ class GameWidget(QtWidgets.QWidget):
         self.program = program
         self.game = game
         self.game.two_hands_in_frame = True
+        self.time_stamp = 0
 
     def mouseMoveEvent(self, a0: QtGui.QMouseEvent) -> None:
         (x, y) = (a0.globalX(), a0.globalY())
@@ -73,56 +74,60 @@ class GameWidget(QtWidgets.QWidget):
                 pass
 
             #print(time.time() - game.startTime)
-            if False: #float(int(time.time() - game.startTime)) == time.time() - game.startTime:  # (time.time() - game.startTime) %== 0:
-                # TODO: draw the game field
+            if self.time_stamp == 0 or time.time() - self.time_stamp > 0.02:  # game field updates ten times per second
+                self.time_stamp = time.time()
+                delta_time = (time.time() - game.startTime) * 50
 
                 for x in range(len(game.field.fieldArray)):
                     for y in range(len(game.field.fieldArray[x])):
-                        pos_x = 200 + x * (50 * (x - 1))
-                        pos_y = 200 + y * (50 * (y - 1))
-                        new_tiles = int((time.time() - game.startTime) - game.speed)
-                        # print("new_tiles: %s" % new_tiles)
-                        pos_y = pos_y - (new_tiles * 10)
+                        if True:  #x == 0:  # TODO: only for debugging
+                            #print(x != 0 and y != 0)
+                            #print("x: %s & y: %s" % (x, y))
+                            pos_x = 200 + 200 * (x - 1)
+                            pos_y = -400 + 200 * (y - 1)
+                            #new_tiles = round((time.time() - game.startTime) - game.speed)
+                            #print("new_tiles: %s" % new_tiles)
+                            pos_y = pos_y + delta_time
+                            #print("pos_x: %s & pos_y: %s" % (pos_x, pos_y))
 
-                        program.GameBilaturtle = QtWidgets.QLabel(program.GameScreen)
-                        program.GameBilaturtle.setGeometry(QtCore.QRect(290, 340, 200, 220))
-                        program.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
-                        program.GameBilaturtle.setScaledContents(True)
-                        program.GameBilaturtle.setObjectName("GameBilaturtle")
+                            '''program.GameBilaturtle = QtWidgets.QLabel(program.GameScreen)
+                            program.GameBilaturtle.setGeometry(QtCore.QRect(290, 340, 200, 220))
+                            program.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
+                            program.GameBilaturtle.setScaledContents(True)
+                            program.GameBilaturtle.setObjectName("GameBilaturtle")'''
 
-                        # draw appropriate sprite
-                        type = game.field.fieldArray[x][y]
-                        new_sprite = program.field[y + (4 * x)]
+                            # draw appropriate sprite
+                            reverse_y = (len(game.field.fieldArray[0]) - 1) - y
+                            new_sprite = program.field[(6 * x) - reverse_y]
+                            sprite_type = game.field.fieldArray[x][reverse_y]
+                            #print(sprite_type)
+                            #print("Reverse: %s & input: %s" % (reverse_y, y))
 
-                        new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
-                        new_sprite.setText("Peter is a douchebag")
-                        print("x: %s and y: %s" % (pos_x, pos_y))
-                        if type == 0 or type == 1:
-                            # TODO: draw nothing
-                            new_sprite.setPixmap(QPixmap("sprites/Plain.png"))
-                            new_sprite.setScaledContents(True)
-                            new_sprite.setObjectName("PlainTile%s%s" % (x, y))
-                            pass
-                        if type == 1:
-                            new_sprite = QtWidgets.QLabel(program.GameScreen)
                             new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
-                            new_sprite.setPixmap(QPixmap("sprites/Carrot.png"))
-                            new_sprite.setScaledContents(True)
-                            new_sprite.setObjectName("Pickup%s%s" % (x, y))
-                            # TODO: draw pickupsF
-                            pass
-                        elif type == 2:
-                            new_sprite.setPixmap(QPixmap("sprites/Seagull.png"))
-                            new_sprite.setScaledContents(True)
-                            new_sprite.setObjectName("Seagull%s%s" % (x, y))
-                            # TODO: draw seaguls
-                            pass
-                        else:
-                            new_sprite.setPixmap(QPixmap("sprites/Lake.png"))
-                            new_sprite.setScaledContents(True)
-                            new_sprite.setObjectName("River%s%s" % (x, y))
-                            # TODO: draw water
-                            pass
+                            #new_sprite.setText("Peter is a douchebag")
+                            #print("x: %s and y: %s" % (pos_x, pos_y))
+                            if sprite_type != 3:  # activates for type 0, 1, 2, and 4
+                                # TODO: draw plain sprite
+                                new_sprite.setPixmap(QPixmap("sprites/Plain.png"))
+                                new_sprite.setScaledContents(True)
+                                new_sprite.setObjectName("PlainTile%s%s" % (x, y))
+                            if sprite_type == 1:
+                                new_sprite = QtWidgets.QLabel(program.GameScreen)
+                                new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
+                                new_sprite.setPixmap(QPixmap("sprites/Carrot.png"))
+                                new_sprite.setScaledContents(True)
+                                new_sprite.setObjectName("Pickup%s%s" % (x, y))
+                                # TODO: draw pickupsF
+                            elif sprite_type == 2:
+                                new_sprite.setPixmap(QPixmap("sprites/Seagull.png"))
+                                new_sprite.setScaledContents(True)
+                                new_sprite.setObjectName("Seagull%s%s" % (x, y))
+                                # TODO: draw seaguls
+                            elif sprite_type == 3:
+                                new_sprite.setPixmap(QPixmap("sprites/Lake.png"))
+                                new_sprite.setScaledContents(True)
+                                new_sprite.setObjectName("River%s%s" % (x, y))
+                                # TODO: draw water
 
 
 class Ui_MainWindow(object):
@@ -439,12 +444,12 @@ class Ui_MainWindow(object):
         self.QuitYesButton.setText(_translate("MainWindow", "Yes"))
         self.QuitNoButton.setText(_translate("MainWindow", "No"))
         self.GoodJobText.setText(_translate("MainWindow", "Good job!"))
-        self.PointsLabel.setText(_translate("MainWindow", "Points: Insert points instead"))
+        self.PointsLabel.setText(_translate("MainWindow", "Points: %s" % game.currentPoints))
         self.TimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
-        self.StreakLabel.setText(_translate("MainWindow", "Streak: Insert streak instead"))
-        self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % game.is_holding_turtle))
+        self.StreakLabel.setText(_translate("MainWindow", "Streak: %s" % game.currentStreak))
+        self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % game.currentPoints))
         self.GSTimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
-        self.GSStreakLabel.setText(_translate("MainWindow", "Streak: Insert streak instead"))
+        self.GSStreakLabel.setText(_translate("MainWindow", "Streak: %s" % game.currentStreak))
         self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
 
 
@@ -467,13 +472,12 @@ class UpdateThread(Thread):
         cap.set(4, 600)
 
         while True:
-            if game.hasFinished:
-                continue
-            # read a frame from the webcam and pass it on to the game (GestureEngine)
-            frame = cap.read()[1]
-            game.update(frame)
-            self.main_window.retranslateUi(self.main_main_window)  # updates the entire gui
-            time.sleep(0.01)
+            if not game.hasFinished:
+                # read a frame from the webcam and pass it on to the game (GestureEngine)
+                frame = cap.read()[1]
+                game.update(frame)
+                self.main_window.retranslateUi(self.main_main_window)  # updates the entire gui
+                time.sleep(0.01)
 
 
 if __name__ == "__main__":
