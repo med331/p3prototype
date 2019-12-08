@@ -9,10 +9,9 @@ import time
 from math import floor
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from threading import Thread
 
 from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QPixmap
 from src.game import Game
 from src.gesture_engine import Hand
 import sys
@@ -57,9 +56,9 @@ class GameWidget(QtWidgets.QWidget):
                         QtCore.QRect(self.game.middle_point[0] - 50, self.game.middle_point[1] - 55, 100, 110))
                 else:
                     #print(game.field.turtleXPosition)
-                    x_position = 150 + floor((500 / 3) * self.game.field.turtleXPosition)
+                    x_position = 100 + floor((600 / 3) * self.game.field.turtleXPosition)
                     program.GameBilaturtle.setGeometry(
-                        QtCore.QRect(x_position - 50, 250, 100, 110))
+                        QtCore.QRect(x_position - 50, 300, 100, 110))
 
                 # TODO: this is debugging only
                 '''x_position = 150 + floor((500 / 3) * game.hand_tile)
@@ -104,27 +103,30 @@ class GameWidget(QtWidgets.QWidget):
                             #print(sprite_type)
                             #print("Reverse: %s & input: %s" % (reverse_y, y))
 
-                            new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
+
                             #new_sprite.setText("Peter is a douchebag")
                             #print("x: %s and y: %s" % (pos_x, pos_y))
+                            #new_sprite = QtWidgets.QLabel(program.GameScreen)
                             if sprite_type != 3:  # activates for type 0, 1, 2, and 4
                                 # TODO: draw plain sprite
+                                new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
                                 new_sprite.setPixmap(QPixmap("sprites/Plain.png"))
                                 new_sprite.setScaledContents(True)
                                 new_sprite.setObjectName("PlainTile%s%s" % (x, y))
                             if sprite_type == 1:
-                                new_sprite = QtWidgets.QLabel(program.GameScreen)
                                 new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
                                 new_sprite.setPixmap(QPixmap("sprites/Carrot.png"))
                                 new_sprite.setScaledContents(True)
                                 new_sprite.setObjectName("Pickup%s%s" % (x, y))
                                 # TODO: draw pickupsF
                             elif sprite_type == 2:
+                                new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
                                 new_sprite.setPixmap(QPixmap("sprites/Seagull.png"))
                                 new_sprite.setScaledContents(True)
                                 new_sprite.setObjectName("Seagull%s%s" % (x, y))
                                 # TODO: draw seaguls
                             elif sprite_type == 3:
+                                new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
                                 new_sprite.setPixmap(QPixmap("sprites/Lake.png"))
                                 new_sprite.setScaledContents(True)
                                 new_sprite.setObjectName("River%s%s" % (x, y))
@@ -194,17 +196,17 @@ class BilaTurtle(object):
         self.GameScreenQuit.setObjectName("GameScreenButton1")
         self.GameScreenQuit.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
         self.GameBilaturtle = QtWidgets.QLabel(self.GameScreen)
-        self.GameBilaturtle.setGeometry(QtCore.QRect(290, 340, 200, 220))
+        self.GameBilaturtle.setGeometry(QtCore.QRect(2290, 340, 200, 220))
         self.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
         self.GameBilaturtle.setScaledContents(True)
         self.GameBilaturtle.setObjectName("GameBilaturtle")
         self.GameLeftHand = QtWidgets.QLabel(self.GameScreen)
-        self.GameLeftHand.setGeometry(QtCore.QRect(290, 340, 200, 220))
+        self.GameLeftHand.setGeometry(QtCore.QRect(2290, 340, 200, 220))
         self.GameLeftHand.setPixmap(QPixmap("sprites/sideways_left_hand.png"))
         self.GameLeftHand.setScaledContents(True)
         self.GameLeftHand.setObjectName("GameLeftHand")
         self.GameRightHand = QtWidgets.QLabel(self.GameScreen)
-        self.GameRightHand.setGeometry(QtCore.QRect(290, 340, 200, 220))
+        self.GameRightHand.setGeometry(QtCore.QRect(2290, 340, 200, 220))
         self.GameRightHand.setPixmap(QPixmap("sprites/sideways_right_hand.png"))
         self.GameRightHand.setScaledContents(True)
         self.GameRightHand.setObjectName("GameLeftHand")

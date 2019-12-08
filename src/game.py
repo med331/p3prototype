@@ -60,7 +60,8 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
                     self.fieldArray[x][self.sizeY - 1] = 1
                 else:
                     self.fieldArray[x][self.sizeY - 1] = 0
-        self.display()
+        self.checkTurtleField()
+        self.display()  # debugging
 
     def checkTurtleField(self):
         gameObject = self.fieldArray[self.turtleXPosition][1]
@@ -71,6 +72,7 @@ class GameField:  # 0: empty field 1:pickup 2:seagull 3:river 4:turtle
             if self.turtleZPosition == 0:
                 Game.currentStreak += 1
                 Game.currentPoints += 10
+                self.fieldArray[self.turtleXPosition][1] = 0
 
     def display(self):  # display the field for testing purposes
         for y in range(self.sizeY-1, -1, -1):
