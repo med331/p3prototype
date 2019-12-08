@@ -11,6 +11,7 @@ from math import floor
 from PyQt5 import QtCore, QtGui, QtWidgets
 from threading import Thread
 
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QImage, QPixmap
 from src.game import Game
 from src.gesture_engine import Hand
@@ -34,29 +35,29 @@ class GameWidget(QtWidgets.QWidget):
         new_hands.append(Hand(x - 100, y, 1, 1))
         new_hands.append(Hand(x + 100, y, 1, 1))
         self.game.hands = new_hands
-        self.draw()
+        #self.draw()
 
     def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
         self.game.is_holding_turtle = True
         time.sleep(0.05)  # add delay to ensure GestureEngine update before drawing
-        self.draw()
+        #self.draw()
 
     def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
         self.game.is_holding_turtle = False
         time.sleep(0.05)  # add delay to ensure GestureEngine update before drawing
-        self.draw()
+        #self.draw()
 
     def draw(self):
         program = self.program
-        if game.two_hands_in_frame:
+        if self.game.two_hands_in_frame:
             try:
-                program.Bilaturtle.setGeometry(QtCore.QRect(game.hands[0].x, game.hands[0].y, 200, 220))
-                if game.is_holding_turtle:
+                program.Bilaturtle.setGeometry(QtCore.QRect(self.game.hands[0].x, self.game.hands[0].y, 200, 220))
+                if self.game.is_holding_turtle:
                     program.GameBilaturtle.setGeometry(
-                        QtCore.QRect(game.middle_point[0] - 50, game.middle_point[1] - 55, 100, 110))
+                        QtCore.QRect(self.game.middle_point[0] - 50, self.game.middle_point[1] - 55, 100, 110))
                 else:
                     #print(game.field.turtleXPosition)
-                    x_position = 150 + floor((500 / 3) * game.field.turtleXPosition)
+                    x_position = 150 + floor((500 / 3) * self.game.field.turtleXPosition)
                     program.GameBilaturtle.setGeometry(
                         QtCore.QRect(x_position - 50, 250, 100, 110))
 
@@ -67,19 +68,19 @@ class GameWidget(QtWidgets.QWidget):
 
                 # draw hands
                 program.GameLeftHand.setGeometry(
-                    QtCore.QRect(game.hands[0].x, game.hands[0].y, 200, 220))
+                    QtCore.QRect(self.game.hands[0].x, self.game.hands[0].y, 200, 220))
                 program.GameRightHand.setGeometry(
-                    QtCore.QRect(game.hands[1].x, game.hands[1].y, 200, 220))
+                    QtCore.QRect(self.game.hands[1].x, self.game.hands[1].y, 200, 220))
             except:
                 pass
 
             #print(time.time() - game.startTime)
             if self.time_stamp == 0 or time.time() - self.time_stamp > 0.02:  # game field updates ten times per second
                 self.time_stamp = time.time()
-                delta_time = (time.time() - game.startTime) * 50
+                delta_time = (time.time() - self.game.startTime) * 50
 
-                for x in range(len(game.field.fieldArray)):
-                    for y in range(len(game.field.fieldArray[x])):
+                for x in range(len(self.game.field.fieldArray)):
+                    for y in range(len(self.game.field.fieldArray[x])):
                         if True:  #x == 0:  # TODO: only for debugging
                             #print(x != 0 and y != 0)
                             #print("x: %s & y: %s" % (x, y))
@@ -97,9 +98,9 @@ class GameWidget(QtWidgets.QWidget):
                             program.GameBilaturtle.setObjectName("GameBilaturtle")'''
 
                             # draw appropriate sprite
-                            reverse_y = (len(game.field.fieldArray[0]) - 1) - y
+                            reverse_y = (len(self.game.field.fieldArray[0]) - 1) - y
                             new_sprite = program.field[(6 * x) - reverse_y]
-                            sprite_type = game.field.fieldArray[x][reverse_y]
+                            sprite_type = self.game.field.fieldArray[x][reverse_y]
                             #print(sprite_type)
                             #print("Reverse: %s & input: %s" % (reverse_y, y))
 
@@ -130,12 +131,40 @@ class GameWidget(QtWidgets.QWidget):
                                 # TODO: draw water
 
 
-class Ui_MainWindow(object):
-    def __init__(self):
+class BilaTurtle(object):
+    def __init__(self, mw):
         self.field = []
+        self.mw = mw
+        self.updating = False
 
-    def setupUi(self, MainWindow, game):
-        self.game = game
+        # initialize game
+        self.game = Game()
+        self.game.start()
+
+        # initialize OpenCV and webcam capture
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(3, 800)
+        self.cap.set(4, 600)
+
+        self.timer = QTimer()
+        self.timer.setInterval(1)
+        self.timer.timeout.connect(self.update_game)
+        self.timer.start()
+
+    def update_game(self):
+        if self.updating:
+            print("Skipped a scheduled game update, because one is already under way!")
+        if not self.game.hasFinished or self.updating:
+            self.updating = True
+            # read a frame from the webcam and pass it on to the game (GestureEngine)
+            frame = self.cap.read()[1]
+            self.game.update(frame)
+            self.update_gui()  # updates the entire gui
+            self.GameScreen.draw()
+            self.updating = False
+
+    def setup_gui(self):
+        MainWindow = self.mw
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedSize(800, 600)
         self.buttonWidth = 100
@@ -374,11 +403,11 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
+        self.update_gui()
         self.stackedWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi(self, MainWindow):
+    def update_gui(self):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.GameScreenButton1.setText(_translate("MainWindow", "Instructions"))
@@ -444,57 +473,25 @@ class Ui_MainWindow(object):
         self.QuitYesButton.setText(_translate("MainWindow", "Yes"))
         self.QuitNoButton.setText(_translate("MainWindow", "No"))
         self.GoodJobText.setText(_translate("MainWindow", "Good job!"))
-        self.PointsLabel.setText(_translate("MainWindow", "Points: %s" % game.currentPoints))
+        self.PointsLabel.setText(_translate("MainWindow", "Points: %s" % self.game.currentPoints))
         self.TimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
-        self.StreakLabel.setText(_translate("MainWindow", "Streak: %s" % game.currentStreak))
-        self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % game.currentPoints))
+        self.StreakLabel.setText(_translate("MainWindow", "Streak: %s" % self.game.currentStreak))
+        self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % self.game.currentPoints))
         self.GSTimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
-        self.GSStreakLabel.setText(_translate("MainWindow", "Streak: %s" % game.currentStreak))
+        self.GSStreakLabel.setText(_translate("MainWindow", "Streak: %s" % self.game.currentStreak))
         self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
 
 
-class UpdateThread(Thread):
-
-    def __init__(self, main_window, main_main_window, game):
-        super().__init__()
-        self.main_window = main_window
-        self.main_main_window = main_main_window
-        self.game = game
-
-    def run(self):
-
-        # initialize game
-        game.start()
-
-        # initialize OpenCV and webcam capture
-        cap = cv2.VideoCapture(0)
-        cap.set(3, 800)
-        cap.set(4, 600)
-
-        while True:
-            if not game.hasFinished:
-                # read a frame from the webcam and pass it on to the game (GestureEngine)
-                frame = cap.read()[1]
-                game.update(frame)
-                self.main_window.retranslateUi(self.main_main_window)  # updates the entire gui
-                time.sleep(0.01)
-
-
 if __name__ == "__main__":
-    game = Game()
 
     # set up GUI
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow, game)
-
-    # set up game-updating thread
-    t = UpdateThread(ui, MainWindow, game)
+    bt = BilaTurtle(MainWindow)
+    bt.setup_gui()
 
     # launch app
     MainWindow.show()
-    t.start()
 
     # there is no returning from this
     sys.exit(app.exec_())
