@@ -12,6 +12,9 @@ import cv2
 
 
 class GameWidget(QtWidgets.QWidget):
+    """
+        THE CLASS THAT HANDLES USER MOUSE INPUT AND DRAWS THE GAME OBJECTS
+    """
 
     def __init__(self, game, program):
         super(GameWidget, self).__init__()   # calls QtWidgets.QWidget constructor
@@ -134,6 +137,9 @@ class GameWidget(QtWidgets.QWidget):
 
 
 class BilaTurtle(object):
+    """
+        THE MAIN CLASS REPRESENTING THE APP
+    """
 
     def __init__(self, mw):
 

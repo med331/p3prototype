@@ -6,6 +6,10 @@ from src.gesture_engine import GestureEngine
 
 
 class GameField:
+    """
+        THE CLASS THAT MAINTAINS THE GAME FIELD
+    """
+
     sizeX = 4                         # the horizontal size of the game field
     sizeY = 6                         # the vertical sixe og the game field
     fieldArray = []                   # the array of field tiles
@@ -120,6 +124,10 @@ class GameField:
 
 
 class Game(GestureEngine):  # please see tests/test_game for how to test your code
+    """
+        THE CLASS THAT HANDLES THE GAME LOGIC, USING GESTURE ENGINE AND GAME FIELD
+    """
+
     currentStreak = 0               # the accumulated streak during a game session
     currentPoints = 0               # the accumulated points during a game session
     difficulty = 1                  # difficulty (the higher the harder, 1 to 5 (can maybe go higher (don't try)))
