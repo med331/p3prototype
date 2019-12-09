@@ -69,10 +69,10 @@ class GameWidget(QtWidgets.QWidget):
             except:
                 pass
 
-            #print(time.time() - game.startTime)
+            #print(time.time() - game.update_time)
             if self.time_stamp == 0 or time.time() - self.time_stamp > 0.02:  # ensure at least 20 ms delay
                 self.time_stamp = time.time()
-                delta_time = (time.time() - self.game.startTime) * 50
+                delta_time = (time.time() - self.game.update_time) * 50
 
                 for x in range(len(self.game.field.fieldArray)):
                     for y in range(len(self.game.field.fieldArray[x])):
@@ -81,7 +81,7 @@ class GameWidget(QtWidgets.QWidget):
                             #print("x: %s & y: %s" % (x, y))
                             pos_x = 200 + 200 * (x - 1)
                             pos_y = -400 + 200 * (y - 1)
-                            #new_tiles = round((time.time() - game.startTime) - game.speed)
+                            #new_tiles = round((time.time() - game.update_time) - game.speed)
                             #print("new_tiles: %s" % new_tiles)
                             pos_y = pos_y + delta_time
                             #print("pos_x: %s & pos_y: %s" % (pos_x, pos_y))
@@ -150,9 +150,9 @@ class BilaTurtle(object):
 
         # initialize the game update timer, ideally updating the game every millisecond
         self.timer = QTimer()
-        self.timer.setInterval(1)
-        self.timer.timeout.connect(self.update_game)
-        self.timer.start()
+        self.timer.setInterval(1)  # 1 millisecond update intervals
+        self.timer.timeout.connect(self.update_game)  # call the update_game function when interval is completed
+        self.timer.start()  # run the timer
 
     def update_game(self):
         if self.updating:  # for debugging, game updates are only skipped in extreme circumstances
@@ -503,10 +503,10 @@ class BilaTurtle(object):
         self.QuitNoButton.setText(_translate("MainWindow", "No"))
         self.GoodJobText.setText(_translate("MainWindow", "Good job!"))
         self.PointsLabel.setText(_translate("MainWindow", "Points: %s" % self.game.currentPoints))
-        self.TimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
+        self.TimeLabel.setText(_translate("MainWindow", "Time: %s" % self.game.get_elapsed_play_time()))
         self.StreakLabel.setText(_translate("MainWindow", "Streak: %s" % self.game.currentStreak))
         self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % self.game.currentPoints))
-        self.GSTimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
+        self.GSTimeLabel.setText(_translate("MainWindow", "Time: %s" % self.game.get_elapsed_play_time()))
         self.GSStreakLabel.setText(_translate("MainWindow", "Streak: %s" % self.game.currentStreak))
         self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
         if not self.game.two_hands_in_frame:

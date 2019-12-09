@@ -101,12 +101,14 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
     def __init__(self):
         super(Game, self).__init__()  # calling GestureEngine constructor
         self.hasFinished = True
-        self.startTime = 0
+        self.update_time = 0
+        self.play_time = 0
 
     def start(self):
         self.hasFinished = False
         self.field.setup()
-        self.startTime = time.time()
+        self.update_time = time.time()
+        self.play_time = time.time()
 
     def stop(self):
         self.hasFinished = True
@@ -116,6 +118,9 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
     def change_difficulty(self, value):
         self.difficulty = value
         self.field.difficulty = self.difficulty
+
+    def get_elapsed_play_time(self):
+        return round(time.time() - self.play_time)
 
     def update(self, frame):
 
@@ -137,8 +142,8 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
             self.last_is_holding_turtle = self.is_holding_turtle is True  # force assignment by value
 
             # update playing field after a specific amount of time
-            if time.time() - self.startTime >= self.speed:
-                self.startTime = time.time()
+            if time.time() - self.update_time >= self.speed:
+                self.update_time = time.time()
                 self.field.moveField()
 
             # TODO: debugging
