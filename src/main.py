@@ -12,138 +12,142 @@ import cv2
 
 
 class GameWidget(QtWidgets.QWidget):
+
     def __init__(self, game, program):
-        super(GameWidget, self).__init__()
-        self.program = program
-        self.game = game
-        self.game.two_hands_in_frame = True
-        self.time_stamp = 0
+        super(GameWidget, self).__init__()   # calls QtWidgets.QWidget constructor
+        self.program = program               # a reference to the main app
+        self.game = game                     # a reference to the game object
+        self.game.two_hands_in_frame = True  # when testing, there are always two hands in the frame
+        self.time_stamp = 0                  # time variable to maintaining consistent game tile renders
 
     def mouseMoveEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """Update the game when the user moves the mouse
+
+        NOTE: THIS IS ONLY USED FOR DEBUGGING PURPOSES
+        This method is invoked by Qt internally, and therefore never explicitly called in our code"""
+
+        # save mouse coordinates as x and y, and offset them to fit the screen
         (x, y) = (a0.globalX(), a0.globalY())
         (x, y) = (x - 650, y - 300)
+
+        # declare the "fake" middle point
         self.game.middle_point = (x + 100, y)
-        new_hands = []
-        new_hands.append(Hand(x - 100, y, 1, 1))
-        new_hands.append(Hand(x + 100, y, 1, 1))
+
+        # Initialize two new hands, offsetting them appropriately from mouse coordinate
+        new_hands = [Hand(x - 100, y, 1, 1),
+                     Hand(x + 100, y, 1, 1)]
+
+        # override the old hands with the new hands
         self.game.hands = new_hands
 
     def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
-        self.game.is_holding_turtle = True
+        """Update the game when the user presses a mouse button
+
+        NOTE: THIS IS ONLY USED FOR DEBUGGING PURPOSES
+        This method is invoked by Qt internally, and therefore never explicitly called in our code"""
+
+        self.game.is_holding_turtle = True  # pick up turtle when mouse button is pressed
 
     def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
-        self.game.is_holding_turtle = False
+        """Update the game when the user lets go of a mouse button
+
+        NOTE: THIS IS ONLY USED FOR DEBUGGING PURPOSES
+        This method is invoked by Qt internally, and therefore never explicitly called in our code"""
+
+        self.game.is_holding_turtle = False  # release the turtle when mouse button is no longer being pressed
 
     def draw(self):
-        program = self.program
+        """Draws the game tiles, player hands, and the position of the turtle
+
+        This method renders the turtle based on whether or not it's being carried. It also renders the game field,
+        turning the two-dimensional array from the Game object into sprites on the screen."""
+
+        program = self.program  # shorthand
+
+        # Only render anything if the game detects two hands in the frame
         if self.game.two_hands_in_frame:
             try:
-                program.Bilaturtle.setGeometry(QtCore.QRect(self.game.hands[0].x, self.game.hands[0].y, 200, 220))
-                x_position = 100 + floor((600 / 3) * self.game.field.turtleXPosition)
-                #x_target = 100 + floor((600 / 3) * self.game.hand_tile)
+
+                # if the turtle is being held, render it in the player's hands, otherwise, render it on the game tile
                 if self.game.is_holding_turtle:
                     # render Bila Turtle in the hands of the player
                     program.GameBilaturtle.setGeometry(
                         QtCore.QRect(self.game.middle_point[0] - 70, self.game.middle_point[1] - 250, 100, 110))
-                    # show Bila Turtle projection on targeted tile
-                    '''program.GameBilaProjection.setGeometry(
-                        QtCore.QRect(x_target - 50, 300, 100, 110))'''
                 else:
                     # Render Bila Turtle on closest tile
+                    x_position = 100 + floor((600 / 3) * self.game.field.turtleXPosition)
                     program.GameBilaturtle.setGeometry(
                         QtCore.QRect(x_position - 50, 300, 100, 110))
-                    # Render Bila Turtle projection off screen
-                    '''program.GameBilaProjection.setGeometry(
-                        QtCore.QRect(2222, 300, 100, 110))'''
 
-                # TODO: this is debugging only
-                '''x_position = 150 + floor((500 / 3) * game.hand_tile)
-                self.GameBilaturtle.setGeometry(
-                    QtCore.QRect(x_position - 50, 250, 100, 110))'''
-
-                # draw hands
+                # draw player hands
                 program.GameLeftHand.setGeometry(
                     QtCore.QRect(self.game.hands[0].x + 20, self.game.hands[0].y, 200, 220))
                 program.GameRightHand.setGeometry(
                     QtCore.QRect(self.game.hands[1].x - 20, self.game.hands[1].y, 200, 220))
-            except:
-                pass
 
-            #print(time.time() - game.update_time)
+            except: pass  # ignore any potential errors that may occur
+
+            # only update the game tiles if at least 20 milliseconds have passed
             if self.time_stamp == 0 or time.time() - self.time_stamp > 0.02:  # ensure at least 20 ms delay
-                self.time_stamp = time.time()
-                delta_time = (time.time() - self.game.update_time) * 50
-
+                self.time_stamp = time.time()                            # reset time_stamp
+                delta_time = (time.time() - self.game.update_time) * 50  # Used to give the illusion of tile movement
                 for x in range(len(self.game.field.fieldArray)):
                     for y in range(len(self.game.field.fieldArray[x])):
-                        if True:  #x == 0:  # TODO: only for debugging
-                            #print(x != 0 and y != 0)
-                            #print("x: %s & y: %s" % (x, y))
-                            pos_x = 200 + 200 * (x - 1)
-                            pos_y = -400 + 200 * (y - 1)
-                            #new_tiles = round((time.time() - game.update_time) - game.speed)
-                            #print("new_tiles: %s" % new_tiles)
-                            pos_y = pos_y + delta_time
-                            #print("pos_x: %s & pos_y: %s" % (pos_x, pos_y))
 
-                            '''program.GameBilaturtle = QtWidgets.QLabel(program.GameScreen)
-                            program.GameBilaturtle.setGeometry(QtCore.QRect(290, 340, 200, 220))
-                            program.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
-                            program.GameBilaturtle.setScaledContents(True)
-                            program.GameBilaturtle.setObjectName("GameBilaturtle")'''
+                        # define the position of the tile according to it's position in the 2d game field list
+                        pos_x = 200 + 200 * (x - 1)
+                        pos_y = -400 + 200 * (y - 1)
+                        pos_y = pos_y + delta_time  # make sure to offset the y coordinate
 
-                            # draw appropriate sprite
-                            reverse_y = (len(self.game.field.fieldArray[0]) - 1) - y
-                            new_sprite = program.field[(6 * x) - reverse_y]
-                            sprite_type = self.game.field.fieldArray[x][reverse_y]
-                            #print(sprite_type)
-                            #print("Reverse: %s & input: %s" % (reverse_y, y))
+                        # draw appropriate sprite
+                        reverse_y = (len(self.game.field.fieldArray[0]) - 1) - y  # accounting for difference in implementation of 2d lists
+                        new_sprite = program.field[(6 * x) - reverse_y]           # the QLabel to be turned into a game tile
+                        sprite_type = self.game.field.fieldArray[x][reverse_y]    # the type of the sprite, with 0 = grass, 1 = carrot, 2 = seagull, and 3 = water
 
+                        if sprite_type != 3:  # activates for type 0, 1, and 2
+                            # draw the new sprite as a grass tile
+                            new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
+                            new_sprite.setPixmap(QPixmap("sprites/Plain.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("PlainTile%s%s" % (x, y))
 
-                            #new_sprite.setText("Peter is a douchebag")
-                            #print("x: %s and y: %s" % (pos_x, pos_y))
-                            #new_sprite = QtWidgets.QLabel(program.GameScreen)
-                            if sprite_type != 3:  # activates for type 0, 1, 2, and 4
-                                # TODO: draw plain sprite
-                                new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
-                                new_sprite.setPixmap(QPixmap("sprites/Plain.png"))
-                                new_sprite.setScaledContents(True)
-                                new_sprite.setObjectName("PlainTile%s%s" % (x, y))
-                            if sprite_type == 1:
-                                new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
-                                new_sprite.setPixmap(QPixmap("sprites/Carrot.png"))
-                                new_sprite.setScaledContents(True)
-                                new_sprite.setObjectName("Pickup%s%s" % (x, y))
-                                # TODO: draw pickupsF
-                            elif sprite_type == 2:
-                                new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
-                                new_sprite.setPixmap(QPixmap("sprites/Seagull.png"))
-                                new_sprite.setScaledContents(True)
-                                new_sprite.setObjectName("Seagull%s%s" % (x, y))
-                                # TODO: draw seaguls
-                            elif sprite_type == 3:
-                                new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
-                                new_sprite.setPixmap(QPixmap("sprites/Lake.png"))
-                                new_sprite.setScaledContents(True)
-                                new_sprite.setObjectName("River%s%s" % (x, y))
-                                # TODO: draw water
-        else:
-            # TODO: inform the user that their do not have any hands
-            pass
+                        if sprite_type == 1:
+                            # draw the new sprite as a carrot tile
+                            new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
+                            new_sprite.setPixmap(QPixmap("sprites/Carrot.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("Pickup%s%s" % (x, y))
+
+                        elif sprite_type == 2:
+                            # draw the new sprite as a seagull tile
+                            new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
+                            new_sprite.setPixmap(QPixmap("sprites/Seagull.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("Seagull%s%s" % (x, y))
+
+                        elif sprite_type == 3:
+                            # draw the new sprite as a water tile
+                            new_sprite.setGeometry(QtCore.QRect(pos_x, pos_y, 200, 200))
+                            new_sprite.setPixmap(QPixmap("sprites/Lake.png"))
+                            new_sprite.setScaledContents(True)
+                            new_sprite.setObjectName("River%s%s" % (x, y))
 
 
 class BilaTurtle(object):
+
     def __init__(self, mw):
+
         # declare essential variables
-        self.field = []        # list to hold "dummy tiles" that will be overwritten on game start
-        self.mw = mw           # save a reference to the main window of the app
-        self.updating = False  # whether or not a game update is currently in progress
-        self.previous_index = 1
+        self.field = []          # list to hold "dummy tiles" that will be overwritten on game start
+        self.mw = mw             # save a reference to the main window of the app
+        self.updating = False    # whether or not a game update is currently in progress
+        self.previous_index = 1  # the index of the previously shown screen
 
-        # initialize game
+        # initialize and setup GUI
         self.game = Game()
+        self.setup_gui()
 
-        # initialize OpenCV and webcam capture
+        # initialize OpenCV and the built-in front-facing camera, setting video source and dimensions
         self.cap = cv2.VideoCapture(0)
         self.cap.set(3, 800)
         self.cap.set(4, 600)
@@ -155,19 +159,26 @@ class BilaTurtle(object):
         self.timer.start()  # run the timer
 
     def update_game(self):
+        """Update the game and associated GUI values
+
+        This method should be called repeatedly, and processes both gesture input, game state, and game GUI elements."""
+
         if self.updating:  # for debugging, game updates are only skipped in extreme circumstances
             print("Skipped a scheduled game update, because one is already under way!")
         # if the game hasn't finished yet and the previous game update has completed, update the game again
         if not self.game.hasFinished or self.updating:
             self.updating = True        # if this game update hangs, another will not be called until this is disabled
-            frame = self.cap.read()[1]  # retrieve a new frame from the webcam
+            frame = self.cap.read()[1]  # retrieve a new frame from the built-in front-facing camera
             self.game.update(frame)     # update the game logic and Gesture Engine
             self.update_gui()           # updates static parts of the GUI, like text showing points and streaks
             self.GameScreen.draw()      # update the game tiles, turtle, and hand positions
             self.updating = False       # Game update has finished, opening up for new ones
 
     def change_screen(self, index):
-        print(index)
+        """Switch between screens in the app using an Integer index
+
+        Additionally, this method also makes sure to start and stop the game when moving to and from the Game Screen."""
+
         if index == 0:
             # switching to game screen, start the game
             self.game.start()
@@ -180,10 +191,18 @@ class BilaTurtle(object):
         self.previous_index = index
 
     def change_difficulty(self):
-        value = self.DifficultySlider.value()
-        self.game.change_difficulty(value)
+        """Update the difficulty of the game
+
+        This method reads the value of the difficulty slider and sets the difficulty of the game accordingly."""
+
+        value = self.DifficultySlider.value()  # retrieve value from the difficulty slider on the Settings Screen
+        self.game.change_difficulty(value)     # pass that value on to the game
 
     def setup_gui(self):
+        """perform initializations of internal GUI components
+
+        This method should only be called once, immediately upon creation of the Bila Turtle object."""
+
         # build main window, set fixed size and standard button sizes
         MainWindow = self.mw
         MainWindow.setObjectName("MainWindow")
@@ -550,9 +569,12 @@ class BilaTurtle(object):
         self.GoodJobText.setText(_translate("MainWindow", "Good job!"))
         self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
 
-    ''' Method used for continuously refreshing the GUI when in the Game Screen and when hand are detected, 
-    also assigns text to the previously created labels.'''
     def update_gui(self):
+        """update game-dependant text in the GUI
+
+        Method used for continuously refreshing the GUI when in the Game Screen and when hands are detected,
+        also assigns text to the previously created labels."""
+
         _translate = QtCore.QCoreApplication.translate
         # set the values of the labels and progress bars that change their value, this has to be called continuously.
         self.PointsLabel.setText(_translate("MainWindow", "Points: %s" % self.game.currentPoints))
@@ -571,13 +593,13 @@ class BilaTurtle(object):
         else:
             self.TwoHandsText.setText(_translate("MainWindow", ""))
 
+
 if __name__ == "__main__":
 
     # set up GUI
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     bt = BilaTurtle(MainWindow)
-    bt.setup_gui()
 
     # launch app
     MainWindow.show()
