@@ -113,6 +113,10 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
         self.currentPoints = 0
         self.currentStreak = 0
 
+    def change_difficulty(self, value):
+        self.difficulty = value
+        self.field.difficulty = self.difficulty
+
     def update(self, frame):
 
         # process updates from GestureEngine

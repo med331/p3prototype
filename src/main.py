@@ -179,6 +179,10 @@ class BilaTurtle(object):
         self.stackedWidget.setCurrentIndex(index)
         self.previous_index = index
 
+    def change_difficulty(self):
+        value = self.DifficultySlider.value()
+        self.game.change_difficulty(value)
+
     def setup_gui(self):
         MainWindow = self.mw
         MainWindow.setObjectName("MainWindow")
@@ -252,9 +256,10 @@ class BilaTurtle(object):
         self.DiffBackground.setObjectName("DiffBackground")
         self.DifficultySlider = QtWidgets.QSlider(self.DifficultyScreen)
         self.DifficultySlider.setGeometry(QtCore.QRect(90, 210, 621, 41))
-        self.DifficultySlider.setMaximum(2)
+        self.DifficultySlider.setMaximum(5)
         self.DifficultySlider.setOrientation(QtCore.Qt.Horizontal)
         self.DifficultySlider.setTickPosition(QtWidgets.QSlider.TicksBelow)
+        self.DifficultySlider.valueChanged.connect(self.change_difficulty)
         self.DifficultySlider.setObjectName("DifficultySlider")
         self.PullingCheckBox = QtWidgets.QCheckBox(self.DifficultyScreen)
         self.PullingCheckBox.setGeometry(QtCore.QRect(80, 340, 70, 17))
