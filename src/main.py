@@ -53,7 +53,7 @@ class GameWidget(QtWidgets.QWidget):
                 program.Bilaturtle.setGeometry(QtCore.QRect(self.game.hands[0].x, self.game.hands[0].y, 200, 220))
                 if self.game.is_holding_turtle:
                     program.GameBilaturtle.setGeometry(
-                        QtCore.QRect(self.game.middle_point[0] - 50, self.game.middle_point[1] - 55, 100, 110))
+                        QtCore.QRect(self.game.middle_point[0] - 70, self.game.middle_point[1] - 250, 100, 110))
                 else:
                     #print(game.field.turtleXPosition)
                     x_position = 100 + floor((600 / 3) * self.game.field.turtleXPosition)

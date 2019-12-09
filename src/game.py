@@ -115,7 +115,7 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
     def update(self, frame):
 
         # process updates from GestureEngine
-        #self.process_frame(frame)
+        self.process_frame(frame)
 
         self.hand_tile = floor((3 / 550) * self.middle_point[0])  # TODO: debuggin' dat shit
         #print("%s from %s" % (self.hand_tile, self.middle_point[0]))

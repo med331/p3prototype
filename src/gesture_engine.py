@@ -60,7 +60,7 @@ class GestureEngine:
             dy = centers[0][1] - centers[1][1]
             d = np.sqrt(dx * dx + dy * dy)
             col = (0, 0, 255)
-            if d < 150 and dy < 25:
+            if d < 200 and dy < 25:
                 col = (0, 255, 0)
                 self.is_holding_turtle = True
             else:
