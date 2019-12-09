@@ -184,35 +184,47 @@ class BilaTurtle(object):
         self.game.change_difficulty(value)
 
     def setup_gui(self):
+        # build main window, set fixed size and standard button sizes
         MainWindow = self.mw
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedSize(800, 600)
         self.buttonWidth = 100
         self.buttonHeight = 50
+        # build the QStackedWidget (the widget that contains all the screens as indexes of it) set it as central
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
         self.stackedWidget.setGeometry(QtCore.QRect(0, 0, 801, 581))
         self.stackedWidget.setObjectName("stackedWidget")
-
+        # build GameScreen as an instance of the GameWidget class, in order to inherit all the Game Logic methods
         self.GameScreen = GameWidget(self.game, self)
         self.GameScreen.setObjectName("GameScreen")
+        # build progress bar on the game screen, design it's geometry and assign it a default value of 0
         self.GameScreenProgressBar = QtWidgets.QProgressBar(self.GameScreen)
         self.GameScreenProgressBar.setGeometry(QtCore.QRect(660, 10, 118, 23))
-        self.GameScreenProgressBar.setProperty("value", 24)
+        self.GameScreenProgressBar.setProperty("value", 0)
         self.GameScreenProgressBar.setObjectName("GameScreenProgressBar")
+        # create a QLabel for indicative text
+        self.GSInfoLabel = QtWidgets.QLabel(self.GameScreen)
+        self.GSInfoLabel.setGeometry(QtCore.QRect(630, 30, 221, 31))
+        self.GSInfoLabel.setObjectName("GSInfoLabel")
+        # using a loop, create 24 QLabels, representing the 24 images in the game field
+        # insert them into the field array using the "append" method
         for i in range(24):
             widget = QtWidgets.QLabel(self.GameScreen)
             widget.setObjectName("FieldTile%s" % i)
             self.field.append(widget)
+        # create the two buttons on the Game Screen, make them switch to the corresponding screens
         self.GameScreenButton1 = QtWidgets.QPushButton(self.GameScreen)
         self.GameScreenButton1.setGeometry(QtCore.QRect(20, 500, self.buttonWidth, self.buttonHeight))
         self.GameScreenButton1.setObjectName("GameScreenButton1")
+        # lambda is used throughout this class because clicked.connect expects a returnable method
         self.GameScreenButton1.clicked.connect(lambda: self.change_screen(2))
         self.GameScreenQuit = QtWidgets.QPushButton(self.GameScreen)
         self.GameScreenQuit.setGeometry(QtCore.QRect(670, 500, self.buttonWidth, self.buttonHeight))
         self.GameScreenQuit.setObjectName("GameScreenButton1")
         self.GameScreenQuit.clicked.connect(lambda: self.change_screen(4))
+        # create the QLabels where the turtle and the turtle projection will be added
         self.GameBilaturtle = QtWidgets.QLabel(self.GameScreen)
         self.GameBilaturtle.setGeometry(QtCore.QRect(2290, 340, 200, 220))
         self.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
@@ -222,7 +234,8 @@ class BilaTurtle(object):
         self.GameBilaProjection.setGeometry(QtCore.QRect(2290, 340, 200, 220))
         self.GameBilaProjection.setPixmap(QPixmap("sprites/turtle_projection.png"))
         self.GameBilaProjection.setScaledContents(True)
-        self.GameBilaProjection.setObjectName("GameBilaProjextion")
+        self.GameBilaProjection.setObjectName("GameBilaProjection")
+        # create the QLabels where the hands will be added
         self.GameLeftHand = QtWidgets.QLabel(self.GameScreen)
         self.GameLeftHand.setGeometry(QtCore.QRect(2290, 340, 200, 220))
         self.GameLeftHand.setPixmap(QPixmap("sprites/sideways_left_hand.png"))
@@ -233,9 +246,11 @@ class BilaTurtle(object):
         self.GameRightHand.setPixmap(QPixmap("sprites/sideways_right_hand.png"))
         self.GameRightHand.setScaledContents(True)
         self.GameRightHand.setObjectName("GameLeftHand")
+        # create a QLabel used for indicative text
         self.TwoHandsText = QtWidgets.QLabel(self.GameScreen)
         self.TwoHandsText.setGeometry(QtCore.QRect(210, 400, 400, 100))
         self.TwoHandsText.setObjectName("TwoHandsText")
+        # create three labels for indicating the Points, Time Elapsed, and Streak to the user
         self.GSPointsLabel = QtWidgets.QLabel(self.GameScreen)
         self.GSPointsLabel.setGeometry(QtCore.QRect(20, 5, 221, 31))
         self.GSPointsLabel.setObjectName("GSPointsLabel")
@@ -245,22 +260,28 @@ class BilaTurtle(object):
         self.GSStreakLabel = QtWidgets.QLabel(self.GameScreen)
         self.GSStreakLabel.setGeometry(QtCore.QRect(20, 65, 181, 31))
         self.GSStreakLabel.setObjectName("GSStreakLabel")
+        # finally, add the screen to the stacked widget, Game Screen becoming index 0 in the stackedWidget
         self.stackedWidget.addWidget(self.GameScreen)
-
+        # build difficulty screen as a QWidget
         self.DifficultyScreen = QtWidgets.QWidget()
         self.DifficultyScreen.setObjectName("DifficultyScreen")
+        # create a Qlabel for the background of the difficulty (settings) screen
         self.DiffBackground = QtWidgets.QLabel(self.DifficultyScreen)
         self.DiffBackground.setGeometry(QtCore.QRect(0, 0, 801, 612))
         self.DiffBackground.setPixmap(QPixmap("sprites/settings_screen.png"))
         self.DiffBackground.setScaledContents(True)
         self.DiffBackground.setObjectName("DiffBackground")
+        # create a slider used for controlling the difficulty of the game
         self.DifficultySlider = QtWidgets.QSlider(self.DifficultyScreen)
         self.DifficultySlider.setGeometry(QtCore.QRect(90, 210, 621, 41))
+        # set a maximum value of 5, horizontal orientation, ticks below the slider and assign it to change difficulty
         self.DifficultySlider.setMaximum(5)
         self.DifficultySlider.setOrientation(QtCore.Qt.Horizontal)
         self.DifficultySlider.setTickPosition(QtWidgets.QSlider.TicksBelow)
         self.DifficultySlider.valueChanged.connect(self.change_difficulty)
         self.DifficultySlider.setObjectName("DifficultySlider")
+        # create the check boxes, which would have been used for more customization, but current implementation does
+        # not allow it
         self.PullingCheckBox = QtWidgets.QCheckBox(self.DifficultyScreen)
         self.PullingCheckBox.setGeometry(QtCore.QRect(80, 340, 70, 17))
         self.PullingCheckBox.setChecked(True)
@@ -277,40 +298,47 @@ class BilaTurtle(object):
         self.ReachingCheckBox.setGeometry(QtCore.QRect(80, 430, 70, 17))
         self.ReachingCheckBox.setChecked(True)
         self.ReachingCheckBox.setObjectName("ReachingCheckBox")
+        # create the back button, assign it to go back to the start screen
         self.BackButtonSettingsScreen = QtWidgets.QPushButton(self.DifficultyScreen)
         self.BackButtonSettingsScreen.setGeometry(QtCore.QRect(360, 480, self.buttonWidth, self.buttonHeight))
         self.BackButtonSettingsScreen.setObjectName("BackButtonSettingsScreen")
         self.BackButtonSettingsScreen.clicked.connect(lambda: self.change_screen(3))
+        # add screen to StackedWidget, meaning it gets index 1
         self.stackedWidget.addWidget(self.DifficultyScreen)
-
+        # create Instructions Screen as a QWidget
         self.InstructionsScreen = QtWidgets.QWidget()
         self.InstructionsScreen.setObjectName("InstructionsScreen")
+        # create the QLabel that contains the picture displaying the Instructions Screen
         self.InstructionsHeader = QtWidgets.QLabel(self.InstructionsScreen)
         self.InstructionsHeader.setGeometry(QtCore.QRect(0, 0, 801, 581))
-        font = QtGui.QFont()
-        font.setPointSize(28)
-        self.InstructionsHeader.setFont(font)
+        # given that this screen does not have any game functionality, it's just an image displayed on the screen
         self.InstructionsHeader.setPixmap(QPixmap("sprites/Instructions.png"))
         self.InstructionsHeader.setScaledContents(True)
         self.InstructionsHeader.setObjectName("InstructionsHeader")
+        # create the button to go back to the Game Screen
         self.InstructionsBackButton = QtWidgets.QPushButton(self.InstructionsScreen)
         self.InstructionsBackButton.setGeometry(QtCore.QRect(360, 525, self.buttonWidth, self.buttonHeight))
         self.InstructionsBackButton.setObjectName("pushButton_3")
         self.InstructionsBackButton.clicked.connect(lambda: self.change_screen(0))
+        # add the screen to the StackedWidget, it gets index 2
         self.stackedWidget.addWidget(self.InstructionsScreen)
 
+        # create Start Screen as a QWidget
         self.StartScreen = QtWidgets.QWidget()
         self.StartScreen.setObjectName("StartScreen")
+        # create the background containing the title text
         self.BilaturtleText = QtWidgets.QLabel(self.StartScreen)
         self.BilaturtleText.setGeometry(QtCore.QRect(0, 0, 801, 612))
         self.BilaturtleText.setPixmap(QPixmap("sprites/start_screen.png"))
         self.BilaturtleText.setScaledContents(True)
         self.BilaturtleText.setObjectName("BilaturtleText")
+        # create the QLabel containing the turtle logo
         self.Bilaturtle = QtWidgets.QLabel(self.StartScreen)
         self.Bilaturtle.setGeometry(QtCore.QRect(290, 340, 200, 220))
         self.Bilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
         self.Bilaturtle.setScaledContents(True)
         self.Bilaturtle.setObjectName("Bilaturtle")
+        # create the two buttons and assign them to be linked to the proper screens
         self.StartButton = QtWidgets.QPushButton(self.StartScreen)
         self.StartButton.setGeometry(QtCore.QRect(330, 160, self.buttonWidth, self.buttonHeight))
         self.StartButton.setObjectName("StartButton")
@@ -319,6 +347,9 @@ class BilaTurtle(object):
         self.SettingsButton.setGeometry(QtCore.QRect(330, 230, self.buttonWidth, self.buttonHeight))
         self.SettingsButton.setObjectName("SettingsButton")
         self.SettingsButton.clicked.connect(lambda: self.change_screen(1))
+        # create the two filler tables, which would have been developed more with more time
+        # currently, these tables offer an indication of what the competition system of a fuller implementation of
+        # Bilaturtle would look like
         self.PersonalTable = QtWidgets.QTableWidget(self.StartScreen)
         self.PersonalTable.setGeometry(QtCore.QRect(120, 150, 121, 191))
         self.PersonalTable.setObjectName("PersonalTable")
@@ -373,15 +404,18 @@ class BilaTurtle(object):
         self.GroupTable.setItem(3, 0, item)
         item = QtWidgets.QTableWidgetItem()
         self.GroupTable.setItem(4, 0, item)
+        # add screen to the StackedWidget, gets index 3
         self.stackedWidget.addWidget(self.StartScreen)
-
+        # create QuitScreen as a QWidget
         self.QuitScreen = QtWidgets.QWidget()
         self.QuitScreen.setObjectName("QuitScreen")
+        # create a QLabel containing the background of the quit screen, with the header text
         self.QuitBackground = QtWidgets.QLabel(self.QuitScreen)
         self.QuitBackground.setGeometry(QtCore.QRect(0, 0, 801, 612))
         self.QuitBackground.setPixmap(QPixmap("sprites/quit_screen.png"))
         self.QuitBackground.setScaledContents(True)
         self.QuitBackground.setObjectName("QuitBackground")
+        # create the two buttons and link them to the proper screens
         self.QuitYesButton = QtWidgets.QPushButton(self.QuitScreen)
         self.QuitYesButton.setGeometry(QtCore.QRect(290, 240, self.buttonWidth, self.buttonHeight))
         self.QuitYesButton.setObjectName("QuitYesButton")
@@ -390,21 +424,26 @@ class BilaTurtle(object):
         self.QuitNoButton.setGeometry(QtCore.QRect(420, 240, self.buttonWidth, self.buttonHeight))
         self.QuitNoButton.setObjectName("QuitNoButton")
         self.QuitNoButton.clicked.connect(lambda: self.change_screen(0))
+        # finally, add the screen to the StackedWidget, gets index 4
         self.stackedWidget.addWidget(self.QuitScreen)
-
+        # lastly, create Progress Screeen as a QWidget
         self.ProgressScreen = QtWidgets.QWidget()
+        # create the QLabel containing the plain background
         self.ProgressBackground = QtWidgets.QLabel(self.ProgressScreen)
         self.ProgressBackground.setGeometry(QtCore.QRect(0, 0, 801, 612))
         self.ProgressBackground.setPixmap(QPixmap("sprites/Plain.png"))
         self.ProgressBackground.setScaledContents(True)
         self.ProgressBackground.setObjectName("DiffBackground")
         self.ProgressScreen.setObjectName("ProgressScreen")
+        # create the QLabel with the text congratulating the player
         self.GoodJobText = QtWidgets.QLabel(self.ProgressScreen)
         self.GoodJobText.setGeometry(QtCore.QRect(370, 90, 261, 91))
         font = QtGui.QFont()
         font.setPointSize(16)
         self.GoodJobText.setFont(font)
         self.GoodJobText.setObjectName("GoodJobText")
+        # create the progress bar, points, time and streak label, which are basically the same as the
+        # ones on the GameScreen
         self.ProgressScreenProgressBar = QtWidgets.QProgressBar(self.ProgressScreen)
         self.ProgressScreenProgressBar.setGeometry(QtCore.QRect(310, 220, 231, 61))
         self.ProgressScreenProgressBar.setProperty("value", 24)
@@ -418,11 +457,14 @@ class BilaTurtle(object):
         self.StreakLabel = QtWidgets.QLabel(self.ProgressScreen)
         self.StreakLabel.setGeometry(QtCore.QRect(310, 360, 181, 31))
         self.StreakLabel.setObjectName("StreakLabel")
+        # create the Continue button on the main screen, link it to the Start Screen
         self.ProgressContinueButton = QtWidgets.QPushButton(self.ProgressScreen)
         self.ProgressContinueButton.setGeometry(QtCore.QRect(370, 430, self.buttonWidth, self.buttonHeight))
         self.ProgressContinueButton.setObjectName("ProgressContinueButton")
         self.ProgressContinueButton.clicked.connect(lambda: self.change_screen(3))
+        # finally add the screen to the StackedWidget, getting index 5
         self.stackedWidget.addWidget(self.ProgressScreen)
+        # set the central widget (QStackedWidget) as the central widget in the main window
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 801, 21))
@@ -431,14 +473,18 @@ class BilaTurtle(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-
+        # call the update_gui method to refresh the gui
         self.update_gui()
+        # set the starting index to 3, which is the Start Screen
         self.stackedWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-    def update_gui(self):
+        # finally, assign text to UI elements that don't need to be continuously updated
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        # set window name and icon
+        MainWindow.setWindowTitle(_translate("MainWindow", "Bilaturtle Alpha"))
+        MainWindow.setWindowIcon(QtGui.QIcon('sprites/Turtle.png'))
+        # set corresponding text to the Buttons, QLabels, CheckBoxes and tables that
+        # don't change their value at any point
         self.GameScreenButton1.setText(_translate("MainWindow", "Instructions"))
         self.GameScreenQuit.setText(_translate("MainWindow", "Quit"))
         self.PullingCheckBox.setText(_translate("MainWindow", "Pulling"))
@@ -491,7 +537,7 @@ class BilaTurtle(object):
         item = self.GroupTable.item(0, 0)
         item.setText(_translate("MainWindow", "Team 1"))
         item = self.GroupTable.item(1, 0)
-        item.setText(_translate("MainWindow", "Team 2"))
+        item.setText(_translate("MainWindow", "Team 2 (Your Team!)"))
         item = self.GroupTable.item(2, 0)
         item.setText(_translate("MainWindow", "Team 4"))
         item = self.GroupTable.item(3, 0)
@@ -502,13 +548,23 @@ class BilaTurtle(object):
         self.QuitYesButton.setText(_translate("MainWindow", "Yes"))
         self.QuitNoButton.setText(_translate("MainWindow", "No"))
         self.GoodJobText.setText(_translate("MainWindow", "Good job!"))
+        self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
+
+    ''' Method used for continuously refreshing the GUI when in the Game Screen and when hand are detected, 
+    also assigns text to the previously created labels.'''
+    def update_gui(self):
+        _translate = QtCore.QCoreApplication.translate
+        # set the values of the labels and progress bars that change their value, this has to be called continuously.
         self.PointsLabel.setText(_translate("MainWindow", "Points: %s" % self.game.currentPoints))
         self.TimeLabel.setText(_translate("MainWindow", "Time: %s" % self.game.get_elapsed_play_time()))
         self.StreakLabel.setText(_translate("MainWindow", "Streak: %s" % self.game.currentStreak))
         self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % self.game.currentPoints))
+        self.GSInfoLabel.setText(_translate("MainWindow", "Progress towards 20 minutes"))
         self.GSTimeLabel.setText(_translate("MainWindow", "Time: %s" % self.game.get_elapsed_play_time()))
         self.GSStreakLabel.setText(_translate("MainWindow", "Streak: %s" % self.game.currentStreak))
-        self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
+        self.GameScreenProgressBar.setProperty("value", self.game.get_elapsed_play_time()/12)
+        self.ProgressScreenProgressBar.setProperty("value", self.game.get_elapsed_play_time() / 12)
+        # show text indicating that two hands were not found when two hands are not in frame
         if not self.game.two_hands_in_frame:
             self.TwoHandsText.setText(_translate("MainWindow", "CANNOT DETECT HANDS. Try moving your hands towards \n" +
                                                            "the center or improve the lighting conditions in the room"))
