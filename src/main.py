@@ -224,15 +224,6 @@ class BilaTurtle(object):
         # build GameScreen as an instance of the GameWidget class, in order to inherit all the Game Logic methods
         self.GameScreen = GameWidget(self.game, self)
         self.GameScreen.setObjectName("GameScreen")
-        # build progress bar on the game screen, design it's geometry and assign it a default value of 0
-        self.GameScreenProgressBar = QtWidgets.QProgressBar(self.GameScreen)
-        self.GameScreenProgressBar.setGeometry(QtCore.QRect(660, 10, 118, 23))
-        self.GameScreenProgressBar.setProperty("value", 0)
-        self.GameScreenProgressBar.setObjectName("GameScreenProgressBar")
-        # create a QLabel for indicative text
-        self.GSInfoLabel = QtWidgets.QLabel(self.GameScreen)
-        self.GSInfoLabel.setGeometry(QtCore.QRect(660, 30, 221, 31))
-        self.GSInfoLabel.setObjectName("GSInfoLabel")
         # using a loop, create 24 QLabels, representing the 24 images in the game field
         # insert them into the field array using the "append" method
         for i in range(24):
@@ -243,6 +234,15 @@ class BilaTurtle(object):
         self.GameScreenButton1 = QtWidgets.QPushButton(self.GameScreen)
         self.GameScreenButton1.setGeometry(QtCore.QRect(20, 500, self.buttonWidth, self.buttonHeight))
         self.GameScreenButton1.setObjectName("GameScreenButton1")
+        # build progress bar on the game screen, design it's geometry and assign it a default value of 0
+        self.GameScreenProgressBar = QtWidgets.QProgressBar(self.GameScreen)
+        self.GameScreenProgressBar.setGeometry(QtCore.QRect(660, 10, 118, 23))
+        self.GameScreenProgressBar.setProperty("value", 0)
+        self.GameScreenProgressBar.setObjectName("GameScreenProgressBar")
+        # create a QLabel for indicative text
+        self.GSInfoLabel = QtWidgets.QLabel(self.GameScreen)
+        self.GSInfoLabel.setGeometry(QtCore.QRect(660, 30, 221, 31))
+        self.GSInfoLabel.setObjectName("GSInfoLabel")
         # lambda is used throughout this class because clicked.connect expects a returnable method
         self.GameScreenButton1.clicked.connect(lambda: self.change_screen(2))
         self.GameScreenQuit = QtWidgets.QPushButton(self.GameScreen)
