@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'test.ui'
-#
-# Created by: PyQt5 UI code generator 5.9.2
-#
-# WARNING! All changes made in this file will be lost!
 import time
 from math import floor
 
@@ -34,31 +27,34 @@ class GameWidget(QtWidgets.QWidget):
         new_hands.append(Hand(x - 100, y, 1, 1))
         new_hands.append(Hand(x + 100, y, 1, 1))
         self.game.hands = new_hands
-        #self.draw()
 
     def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
         self.game.is_holding_turtle = True
-        time.sleep(0.05)  # add delay to ensure GestureEngine update before drawing
-        #self.draw()
 
     def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
         self.game.is_holding_turtle = False
-        time.sleep(0.05)  # add delay to ensure GestureEngine update before drawing
-        #self.draw()
 
     def draw(self):
         program = self.program
         if self.game.two_hands_in_frame:
             try:
                 program.Bilaturtle.setGeometry(QtCore.QRect(self.game.hands[0].x, self.game.hands[0].y, 200, 220))
+                x_position = 100 + floor((600 / 3) * self.game.field.turtleXPosition)
+                #x_target = 100 + floor((600 / 3) * self.game.hand_tile)
                 if self.game.is_holding_turtle:
+                    # render Bila Turtle in the hands of the player
                     program.GameBilaturtle.setGeometry(
                         QtCore.QRect(self.game.middle_point[0] - 70, self.game.middle_point[1] - 250, 100, 110))
+                    # show Bila Turtle projection on targeted tile
+                    '''program.GameBilaProjection.setGeometry(
+                        QtCore.QRect(x_target - 50, 300, 100, 110))'''
                 else:
-                    #print(game.field.turtleXPosition)
-                    x_position = 100 + floor((600 / 3) * self.game.field.turtleXPosition)
+                    # Render Bila Turtle on closest tile
                     program.GameBilaturtle.setGeometry(
                         QtCore.QRect(x_position - 50, 300, 100, 110))
+                    # Render Bila Turtle projection off screen
+                    '''program.GameBilaProjection.setGeometry(
+                        QtCore.QRect(2222, 300, 100, 110))'''
 
                 # TODO: this is debugging only
                 '''x_position = 150 + floor((500 / 3) * game.hand_tile)
@@ -67,14 +63,14 @@ class GameWidget(QtWidgets.QWidget):
 
                 # draw hands
                 program.GameLeftHand.setGeometry(
-                    QtCore.QRect(self.game.hands[0].x, self.game.hands[0].y, 200, 220))
+                    QtCore.QRect(self.game.hands[0].x + 20, self.game.hands[0].y, 200, 220))
                 program.GameRightHand.setGeometry(
-                    QtCore.QRect(self.game.hands[1].x, self.game.hands[1].y, 200, 220))
+                    QtCore.QRect(self.game.hands[1].x - 20, self.game.hands[1].y, 200, 220))
             except:
                 pass
 
             #print(time.time() - game.startTime)
-            if self.time_stamp == 0 or time.time() - self.time_stamp > 0.02:  # game field updates ten times per second
+            if self.time_stamp == 0 or time.time() - self.time_stamp > 0.02:  # ensure at least 20 ms delay
                 self.time_stamp = time.time()
                 delta_time = (time.time() - self.game.startTime) * 50
 
@@ -131,39 +127,57 @@ class GameWidget(QtWidgets.QWidget):
                                 new_sprite.setScaledContents(True)
                                 new_sprite.setObjectName("River%s%s" % (x, y))
                                 # TODO: draw water
+        else:
+            # TODO: inform the user that their do not have any hands
+            pass
 
 
 class BilaTurtle(object):
     def __init__(self, mw):
-        self.field = []
-        self.mw = mw
-        self.updating = False
+        # declare essential variables
+        self.field = []        # list to hold "dummy tiles" that will be overwritten on game start
+        self.mw = mw           # save a reference to the main window of the app
+        self.updating = False  # whether or not a game update is currently in progress
+        self.previous_index = 1
 
         # initialize game
         self.game = Game()
-        self.game.start()
 
         # initialize OpenCV and webcam capture
         self.cap = cv2.VideoCapture(0)
         self.cap.set(3, 800)
         self.cap.set(4, 600)
 
+        # initialize the game update timer, ideally updating the game every millisecond
         self.timer = QTimer()
         self.timer.setInterval(1)
         self.timer.timeout.connect(self.update_game)
         self.timer.start()
 
     def update_game(self):
-        if self.updating:
+        if self.updating:  # for debugging, game updates are only skipped in extreme circumstances
             print("Skipped a scheduled game update, because one is already under way!")
+        # if the game hasn't finished yet and the previous game update has completed, update the game again
         if not self.game.hasFinished or self.updating:
-            self.updating = True
-            # read a frame from the webcam and pass it on to the game (GestureEngine)
-            frame = self.cap.read()[1]
-            self.game.update(frame)
-            self.update_gui()  # updates the entire gui
-            self.GameScreen.draw()
-            self.updating = False
+            self.updating = True        # if this game update hangs, another will not be called until this is disabled
+            frame = self.cap.read()[1]  # retrieve a new frame from the webcam
+            self.game.update(frame)     # update the game logic and Gesture Engine
+            self.update_gui()           # updates static parts of the GUI, like text showing points and streaks
+            self.GameScreen.draw()      # update the game tiles, turtle, and hand positions
+            self.updating = False       # Game update has finished, opening up for new ones
+
+    def change_screen(self, index):
+        print(index)
+        if index == 0:
+            # switching to game screen, start the game
+            self.game.start()
+        else:
+            if self.previous_index == 0:
+                # switching away from game screen, reset the game
+                self.game.stop()
+        # perform the screen switch, saving the index for reference during next change_screen call
+        self.stackedWidget.setCurrentIndex(index)
+        self.previous_index = index
 
     def setup_gui(self):
         MainWindow = self.mw
@@ -190,16 +204,21 @@ class BilaTurtle(object):
         self.GameScreenButton1 = QtWidgets.QPushButton(self.GameScreen)
         self.GameScreenButton1.setGeometry(QtCore.QRect(20, 500, self.buttonWidth, self.buttonHeight))
         self.GameScreenButton1.setObjectName("GameScreenButton1")
-        self.GameScreenButton1.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
+        self.GameScreenButton1.clicked.connect(lambda: self.change_screen(2))
         self.GameScreenQuit = QtWidgets.QPushButton(self.GameScreen)
         self.GameScreenQuit.setGeometry(QtCore.QRect(670, 500, self.buttonWidth, self.buttonHeight))
         self.GameScreenQuit.setObjectName("GameScreenButton1")
-        self.GameScreenQuit.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(4))
+        self.GameScreenQuit.clicked.connect(lambda: self.change_screen(4))
         self.GameBilaturtle = QtWidgets.QLabel(self.GameScreen)
         self.GameBilaturtle.setGeometry(QtCore.QRect(2290, 340, 200, 220))
         self.GameBilaturtle.setPixmap(QPixmap("sprites/Turtle.png"))
         self.GameBilaturtle.setScaledContents(True)
         self.GameBilaturtle.setObjectName("GameBilaturtle")
+        self.GameBilaProjection = QtWidgets.QLabel(self.GameScreen)
+        self.GameBilaProjection.setGeometry(QtCore.QRect(2290, 340, 200, 220))
+        self.GameBilaProjection.setPixmap(QPixmap("sprites/turtle_projection.png"))
+        self.GameBilaProjection.setScaledContents(True)
+        self.GameBilaProjection.setObjectName("GameBilaProjextion")
         self.GameLeftHand = QtWidgets.QLabel(self.GameScreen)
         self.GameLeftHand.setGeometry(QtCore.QRect(2290, 340, 200, 220))
         self.GameLeftHand.setPixmap(QPixmap("sprites/sideways_left_hand.png"))
@@ -210,6 +229,9 @@ class BilaTurtle(object):
         self.GameRightHand.setPixmap(QPixmap("sprites/sideways_right_hand.png"))
         self.GameRightHand.setScaledContents(True)
         self.GameRightHand.setObjectName("GameLeftHand")
+        self.TwoHandsText = QtWidgets.QLabel(self.GameScreen)
+        self.TwoHandsText.setGeometry(QtCore.QRect(210, 400, 400, 100))
+        self.TwoHandsText.setObjectName("TwoHandsText")
         self.GSPointsLabel = QtWidgets.QLabel(self.GameScreen)
         self.GSPointsLabel.setGeometry(QtCore.QRect(20, 5, 221, 31))
         self.GSPointsLabel.setObjectName("GSPointsLabel")
@@ -253,7 +275,7 @@ class BilaTurtle(object):
         self.BackButtonSettingsScreen = QtWidgets.QPushButton(self.DifficultyScreen)
         self.BackButtonSettingsScreen.setGeometry(QtCore.QRect(360, 480, self.buttonWidth, self.buttonHeight))
         self.BackButtonSettingsScreen.setObjectName("BackButtonSettingsScreen")
-        self.BackButtonSettingsScreen.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
+        self.BackButtonSettingsScreen.clicked.connect(lambda: self.change_screen(3))
         self.stackedWidget.addWidget(self.DifficultyScreen)
 
         self.InstructionsScreen = QtWidgets.QWidget()
@@ -269,7 +291,7 @@ class BilaTurtle(object):
         self.InstructionsBackButton = QtWidgets.QPushButton(self.InstructionsScreen)
         self.InstructionsBackButton.setGeometry(QtCore.QRect(360, 525, self.buttonWidth, self.buttonHeight))
         self.InstructionsBackButton.setObjectName("pushButton_3")
-        self.InstructionsBackButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.InstructionsBackButton.clicked.connect(lambda: self.change_screen(0))
         self.stackedWidget.addWidget(self.InstructionsScreen)
 
         self.StartScreen = QtWidgets.QWidget()
@@ -287,11 +309,11 @@ class BilaTurtle(object):
         self.StartButton = QtWidgets.QPushButton(self.StartScreen)
         self.StartButton.setGeometry(QtCore.QRect(330, 160, self.buttonWidth, self.buttonHeight))
         self.StartButton.setObjectName("StartButton")
-        self.StartButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.StartButton.clicked.connect(lambda: self.change_screen(0))
         self.SettingsButton = QtWidgets.QPushButton(self.StartScreen)
         self.SettingsButton.setGeometry(QtCore.QRect(330, 230, self.buttonWidth, self.buttonHeight))
         self.SettingsButton.setObjectName("SettingsButton")
-        self.SettingsButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
+        self.SettingsButton.clicked.connect(lambda: self.change_screen(1))
         self.PersonalTable = QtWidgets.QTableWidget(self.StartScreen)
         self.PersonalTable.setGeometry(QtCore.QRect(120, 150, 121, 191))
         self.PersonalTable.setObjectName("PersonalTable")
@@ -358,11 +380,11 @@ class BilaTurtle(object):
         self.QuitYesButton = QtWidgets.QPushButton(self.QuitScreen)
         self.QuitYesButton.setGeometry(QtCore.QRect(290, 240, self.buttonWidth, self.buttonHeight))
         self.QuitYesButton.setObjectName("QuitYesButton")
-        self.QuitYesButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(5))
+        self.QuitYesButton.clicked.connect(lambda: self.change_screen(5))
         self.QuitNoButton = QtWidgets.QPushButton(self.QuitScreen)
         self.QuitNoButton.setGeometry(QtCore.QRect(420, 240, self.buttonWidth, self.buttonHeight))
         self.QuitNoButton.setObjectName("QuitNoButton")
-        self.QuitNoButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
+        self.QuitNoButton.clicked.connect(lambda: self.change_screen(0))
         self.stackedWidget.addWidget(self.QuitScreen)
 
         self.ProgressScreen = QtWidgets.QWidget()
@@ -394,7 +416,7 @@ class BilaTurtle(object):
         self.ProgressContinueButton = QtWidgets.QPushButton(self.ProgressScreen)
         self.ProgressContinueButton.setGeometry(QtCore.QRect(370, 430, self.buttonWidth, self.buttonHeight))
         self.ProgressContinueButton.setObjectName("ProgressContinueButton")
-        self.ProgressContinueButton.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
+        self.ProgressContinueButton.clicked.connect(lambda: self.change_screen(3))
         self.stackedWidget.addWidget(self.ProgressScreen)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -482,7 +504,11 @@ class BilaTurtle(object):
         self.GSTimeLabel.setText(_translate("MainWindow", "Time: Insert time instead"))
         self.GSStreakLabel.setText(_translate("MainWindow", "Streak: %s" % self.game.currentStreak))
         self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
-
+        if not self.game.two_hands_in_frame:
+            self.TwoHandsText.setText(_translate("MainWindow", "CANNOT DETECT HANDS. Try moving your hands towards \n" +
+                                                           "the center or improve the lighting conditions in the room"))
+        else:
+            self.TwoHandsText.setText(_translate("MainWindow", ""))
 
 if __name__ == "__main__":
 
@@ -496,4 +522,4 @@ if __name__ == "__main__":
     MainWindow.show()
 
     # there is no returning from this
-    sys.exit(app.exec_())
+    sys.exit(app.exec_())  # thread will be held in this call until program termination

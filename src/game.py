@@ -110,7 +110,8 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
 
     def stop(self):
         self.hasFinished = True
-        # TODO: Implement the rest
+        self.currentPoints = 0
+        self.currentStreak = 0
 
     def update(self, frame):
 
@@ -131,10 +132,10 @@ class Game(GestureEngine):  # please see tests/test_game for how to test your co
                 self.field.turtleZPosition = 0
             self.last_is_holding_turtle = self.is_holding_turtle is True  # force assignment by value
 
-        # update playing field after a specific amount of time
-        if time.time() - self.startTime >= self.speed:
-            self.startTime = time.time()
-            self.field.moveField()
+            # update playing field after a specific amount of time
+            if time.time() - self.startTime >= self.speed:
+                self.startTime = time.time()
+                self.field.moveField()
 
             # TODO: debugging
             '''movement = random.randint(0, 1)
