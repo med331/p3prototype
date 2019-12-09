@@ -231,7 +231,7 @@ class BilaTurtle(object):
         self.GameScreenProgressBar.setObjectName("GameScreenProgressBar")
         # create a QLabel for indicative text
         self.GSInfoLabel = QtWidgets.QLabel(self.GameScreen)
-        self.GSInfoLabel.setGeometry(QtCore.QRect(630, 30, 221, 31))
+        self.GSInfoLabel.setGeometry(QtCore.QRect(660, 30, 221, 31))
         self.GSInfoLabel.setObjectName("GSInfoLabel")
         # using a loop, create 24 QLabels, representing the 24 images in the game field
         # insert them into the field array using the "append" method
@@ -572,7 +572,6 @@ class BilaTurtle(object):
         self.GroupTable.setSortingEnabled(__sortingEnabled)
         self.QuitYesButton.setText(_translate("MainWindow", "Yes"))
         self.QuitNoButton.setText(_translate("MainWindow", "No"))
-        self.GoodJobText.setText(_translate("MainWindow", "Good job!"))
         self.ProgressContinueButton.setText(_translate("MainWindow", "Continue"))
 
     def update_gui(self):
@@ -587,11 +586,19 @@ class BilaTurtle(object):
         self.TimeLabel.setText(_translate("MainWindow", "Time: %s" % self.game.get_elapsed_play_time()))
         self.StreakLabel.setText(_translate("MainWindow", "Streak: %s" % self.game.currentStreak))
         self.GSPointsLabel.setText(_translate("MainWindow", "Points: %s" % self.game.currentPoints))
-        self.GSInfoLabel.setText(_translate("MainWindow", "Progress towards 20 minutes"))
+        self.GSInfoLabel.setText(_translate("MainWindow", "Get to 20 minutes!"))
         self.GSTimeLabel.setText(_translate("MainWindow", "Time: %s" % self.game.get_elapsed_play_time()))
         self.GSStreakLabel.setText(_translate("MainWindow", "Streak: %s" % self.game.currentStreak))
         self.GameScreenProgressBar.setProperty("value", self.game.get_elapsed_play_time()/12)
         self.ProgressScreenProgressBar.setProperty("value", self.game.get_elapsed_play_time() / 12)
+        # if the user completes the 20 minutes recommended session time, they get congratulated, else they
+        # are encouraged to try again
+        if self.game.get_elapsed_play_time() >= 1200:
+            self.GoodJobText.setText(_translate("MainWindow", "Good job!"))
+        else:
+            self.GoodJobText.setGeometry(QtCore.QRect(100, 90, 661, 91))
+            self.GoodJobText.setText(_translate("MainWindow", "You haven't reached the 20 minute target, you have "
+                                                              "to try harder!"))
         # show text indicating that two hands were not found when two hands are not in frame
         if not self.game.two_hands_in_frame:
             self.TwoHandsText.setText(_translate("MainWindow", "CANNOT DETECT HANDS. Try moving your hands towards \n" +

@@ -33,7 +33,7 @@ class GestureEngine:
 
         hsv = cv2.dilate(hsv, None, iterations=3)
 
-        # find blue object above certain size and draw a box around them
+        # find green object above certain size and draw a box around them
         cnt = cv2.findContours(hsv.copy(), cv2.RETR_CCOMP,
                                cv2.CHAIN_APPROX_TC89_KCOS)[1]
 
