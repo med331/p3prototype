@@ -5,6 +5,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QPixmap
+
+from src.fps import Logger
 from src.game import Game
 from src.gesture_engine import Hand
 import sys
@@ -22,6 +24,8 @@ class GameWidget(QtWidgets.QWidget):
         self.game = game                     # a reference to the game object
         self.game.two_hands_in_frame = True  # when testing, there are always two hands in the frame
         self.time_stamp = 0                  # time variable to maintaining consistent game tile renders
+
+        self.logger = Logger()
 
     def mouseMoveEvent(self, a0: QtGui.QMouseEvent) -> None:
         """Update the game when the user moves the mouse
@@ -69,6 +73,9 @@ class GameWidget(QtWidgets.QWidget):
 
         # Only render anything if the game detects two hands in the frame
         if self.game.two_hands_in_frame:
+
+            self.logger.new_frame()
+
             try:
 
                 # if the turtle is being held, render it in the player's hands, otherwise, render it on the game tile
