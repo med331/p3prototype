@@ -14,25 +14,144 @@ class GestureEngine:
         self.middle_point = (sys.maxsize, sys.maxsize)  # the middle point between the two hands
         self.two_hands_in_frame = False                 # whether or not there are exactly two hands in the frame
 
+    def convert(self, r, g, b):
+        r, g, b = r / 255.0, g / 255.0, b / 255.0
+
+        mx = max(r, g, b)#Assign the max and min
+        mn = min(r, g, b)
+        df = mx - mn
+        #Determining the h value
+        if mx == mn:
+            h = 0
+        elif mx == r:
+            h = (60 * ((g - b) / df) + 360) % 360
+        elif mx == g:
+            h = (60 * ((b - r) / df) + 120) % 360
+        elif mx == b:
+            h = (60 * ((r - g) / df) + 240) % 360
+        #Determining the value
+        if mx == 0:
+            s = 0
+        else:
+            s = df / mx
+        v = mx #Assinging the v value
+        #Modifying HSV to be compatiple with Open CV
+        v = v * 255
+        s = s * 255
+        h = h / 2
+        hsv = (h, s, v)
+        return hsv
+
+    def colorthresh(self,img,loh,los,lov,uph,ups,upv):
+        x = 0
+        y = 0
+        height, width = img.shape[:2]#Retrieving the image size
+        #Running through the image
+        for h in range(height - 1):
+            for w in range(width - 1):
+                #Convert to Binary
+                #Set pixel value to 255 if the right HSV value is detected
+                if loh <= img.item(x,y,0) <= uph and los <= img.item(x,y,1) <= ups and lov <= img.item(x,y,2) <= upv:
+                    img[x,y] = 255
+                else:
+                    img[x, y] = 0
+                if y >= width - 1:
+                    y = 0
+                y += 1
+            x += 1
+            if x >= height - 1:
+                x = 0
+        return img
+
+    def medfilter(self, picture, size):
+        (imH, imW) = picture.shape[:2]
+        kerH = size
+        kerW = size
+        kerR = kerH // 2
+        out = np.zeros(picture.shape)
+        window = [0] * (kerW * kerH)#Making an array to store pixel currently run through the kernel
+        #Run through the image
+        for x in range(kerR, imW-kerR):
+            for y in range(kerR, imH-kerR):
+                i = 0
+                #Run through the kernel
+                for m in range(kerW):
+                    for n in range(kerH):
+                        #Assign pixels from the kernel to window
+                        window[i] = picture[y-kerW+n][x-kerH+m]
+                        if i == len(window)-1:
+                            i = 0
+                        else:
+                            i += 1
+                #Sorting and finding the median
+                window.sort()
+                l = len(window)
+                if l % 2 == 0:
+                    median1 = window[l // 2]
+                    median2 = window[l // 2 - 1]
+                    median = (median1 + median2) / 2
+                else:
+                    median = window[l // 2]
+                out[y][x] = median
+        return out
+
+    def dilation(self, picture, size):
+        (imH, imW) = picture.shape[:2]
+        kerH = size
+        kerW = size
+        kerR = kerH // 2
+        out = np.zeros(picture.shape)
+        window = [0] * (kerW * kerH)
+        #Run through the image
+        for x in range(kerR, imW-kerR):
+            for y in range(kerR, imH-kerR):
+                i = 0
+                for m in range(kerW):
+                    for n in range(kerH):
+                        # Assign pixels from the kernel to window
+                        window[i] = picture[y - kerW + n][x - kerH + m]
+                        if i == len(window) - 1:
+                            i = 0
+                        else:
+                            i += 1
+                #Perform the hit action if a pixel with the value of 255 is detected in the window
+                for h in window:
+                    if h == 255:
+                        out[y][x] = 255
+                        break
+                    else:
+                        out[y][x] = 0
+        return out
+
     def process_frame(self, frame):
-
         centers = []  # list to hold object centers
-
         frame = cv2.flip(frame, flipCode=1)  # flip the frame
-
         # convert to HSV
-        hsv = frame
-        hsv = cv2.cvtColor(hsv, cv2.COLOR_BGR2HSV)
-
+        x = 0
+        y = 0
+        height, width = frame.shape[:2]
+        hsv = frame.copy()
+        for h in range(height - 1):
+            for w in range(width - 1):
+                b = hsv.item(x,y,0)
+                g = hsv.item(x,y,1)
+                r = hsv.item(x, y, 2)
+                hsv[x,y] = self.convert(r,g,b)
+                if y >= width - 1:
+                    y = 0
+                y += 1
+            x += 1
+            if x >= height - 1:
+                x = 0
         # Colour threshholding
-        lower_blue = np.array([38, 50, 50])
-        upper_blue = np.array([75, 255, 255])
-        hsv = cv2.inRange(hsv, lower_blue, upper_blue)
-
-        hsv = cv2.medianBlur(hsv, 9)  # filter out noise
-
-        hsv = cv2.dilate(hsv, None, iterations=3)
-
+        hsv = self.colorthresh(hsv,38,50,50,75,255,255)
+        #Processing the image with filtering and dilation
+        hsv = cv2.cvtColor(hsv,cv2.COLOR_BGR2GRAY)
+        hsv = self.medfilter(hsv,7)
+        hsv = self.dilation(hsv,5)
+        hsv = self.dilation(hsv, 5)
+        hsv = self.dilation(hsv, 5)
+        hsv = cv2.normalize(hsv,dst=None,alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
         # find green object above certain size and draw a box around them
         cnt = cv2.findContours(hsv.copy(), cv2.RETR_CCOMP,
                                cv2.CHAIN_APPROX_TC89_KCOS)[1]
