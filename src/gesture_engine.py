@@ -17,10 +17,10 @@ class GestureEngine:
     def convert(self, r, g, b):
         r, g, b = r / 255.0, g / 255.0, b / 255.0
 
-        mx = max(r, g, b)#Assign the max and min
+        mx = max(r, g, b) # Assign the max and min
         mn = min(r, g, b)
         df = mx - mn
-        #Determining the h value
+        # Determining the h value
         if mx == mn:
             h = 0
         elif mx == r:
@@ -29,13 +29,13 @@ class GestureEngine:
             h = (60 * ((b - r) / df) + 120) % 360
         elif mx == b:
             h = (60 * ((r - g) / df) + 240) % 360
-        #Determining the value
+        # Determining the value
         if mx == 0:
             s = 0
         else:
             s = df / mx
-        v = mx #Assinging the v value
-        #Modifying HSV to be compatiple with Open CV
+        v = mx # Assigning the v value
+        # Modifying HSV to be compatible with Open CV
         v = v * 255
         s = s * 255
         h = h / 2
@@ -45,13 +45,13 @@ class GestureEngine:
     def colorthresh(self,img,loh,los,lov,uph,ups,upv):
         x = 0
         y = 0
-        height, width = img.shape[:2]#Retrieving the image size
-        #Running through the image
+        height, width = img.shape[:2] # Retrieving the image size
+        # Running through the image
         for h in range(height - 1):
             for w in range(width - 1):
-                #Convert to Binary
-                #Set pixel value to 255 if the right HSV value is detected
-                if loh <= img.item(x,y,0) <= uph and los <= img.item(x,y,1) <= ups and lov <= img.item(x,y,2) <= upv:
+                # Convert to Binary
+                # Set pixel value to 255 if the right HSV value is detected
+                if loh <= img.item(x, y, 0) <= uph and los <= img.item(x, y, 1) <= ups and lov <= img.item(x, y, 2) <= upv:
                     img[x,y] = 255
                 else:
                     img[x, y] = 0
@@ -69,21 +69,21 @@ class GestureEngine:
         kerW = size
         kerR = kerH // 2
         out = np.zeros(picture.shape)
-        window = [0] * (kerW * kerH)#Making an array to store pixel currently run through the kernel
-        #Run through the image
+        window = [0] * (kerW * kerH) # Making an array to store pixel currently run through the kernel
+        # Run through the image
         for x in range(kerR, imW-kerR):
             for y in range(kerR, imH-kerR):
                 i = 0
-                #Run through the kernel
+                # Run through the kernel
                 for m in range(kerW):
                     for n in range(kerH):
-                        #Assign pixels from the kernel to window
-                        window[i] = picture[y-kerW+n][x-kerH+m]
+                        # Assign pixels from the kernel to window
+                        window[i] = picture[y-kerH+n][x-kerW+m]
                         if i == len(window)-1:
                             i = 0
                         else:
                             i += 1
-                #Sorting and finding the median
+                # Sorting and finding the median
                 window.sort()
                 l = len(window)
                 if l % 2 == 0:
@@ -102,25 +102,24 @@ class GestureEngine:
         kerR = kerH // 2
         out = np.zeros(picture.shape)
         window = [0] * (kerW * kerH)
-        #Run through the image
+        # Run through the image
         for x in range(kerR, imW-kerR):
             for y in range(kerR, imH-kerR):
                 i = 0
                 for m in range(kerW):
                     for n in range(kerH):
                         # Assign pixels from the kernel to window
-                        window[i] = picture[y - kerW + n][x - kerH + m]
+                        window[i] = picture[y - kerH + n][x - kerW + m]
                         if i == len(window) - 1:
                             i = 0
                         else:
                             i += 1
-                #Perform the hit action if a pixel with the value of 255 is detected in the window
+                # Perform the hit action if a pixel with the value of 255 is detected in the window
                 for h in window:
                     if h == 255:
                         out[y][x] = 255
                         break
-                    else:
-                        out[y][x] = 0
+                    out[y][x] = 0
         return out
 
     def process_frame(self, frame):
@@ -133,28 +132,27 @@ class GestureEngine:
         hsv = frame.copy()
         for h in range(height - 1):
             for w in range(width - 1):
-                b = hsv.item(x,y,0)
-                g = hsv.item(x,y,1)
+                b = hsv.item(x, y, 0)
+                g = hsv.item(x, y, 1)
                 r = hsv.item(x, y, 2)
-                hsv[x,y] = self.convert(r,g,b)
+                hsv[x,y] = self.convert(r, g, b)
                 if y >= width - 1:
                     y = 0
                 y += 1
             x += 1
             if x >= height - 1:
                 x = 0
-        # Colour threshholding
-        hsv = self.colorthresh(hsv,38,50,50,75,255,255)
-        #Processing the image with filtering and dilation
-        hsv = cv2.cvtColor(hsv,cv2.COLOR_BGR2GRAY)
-        hsv = self.medfilter(hsv,7)
-        hsv = self.dilation(hsv,5)
+        # Color threshholding
+        hsv = self.colorthresh(hsv, 38, 50, 50, 75, 255, 255)
+        # Processing the image with filtering and dilation
+        hsv = cv2.cvtColor(hsv, cv2.COLOR_BGR2GRAY)
+        hsv = self.medfilter(hsv, 7)
         hsv = self.dilation(hsv, 5)
         hsv = self.dilation(hsv, 5)
-        hsv = cv2.normalize(hsv,dst=None,alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+        hsv = self.dilation(hsv, 5)
+        hsv = cv2.normalize(hsv, dst=None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
         # find green object above certain size and draw a box around them
-        cnt = cv2.findContours(hsv.copy(), cv2.RETR_CCOMP,
-                               cv2.CHAIN_APPROX_TC89_KCOS)[1]
+        cnt = cv2.findContours(hsv.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_TC89_KCOS)[1]
 
         new_hands = []
         for c in cnt:
@@ -164,9 +162,9 @@ class GestureEngine:
                 x = x - 50  # offset hand positions to the middle of the screen
                 new_hands.append(Hand(x, y, w, h))
 
-                M = cv2.moments(c)
-                cx = int(M['m10'] / M['m00'])
-                cy = int(M['m01'] / M['m00'])
+                # calculate the center point of the rectangle
+                cx = x - int(w / 2)
+                cy = y - int(h / 2)
                 centers.append([cx, cy])
 
                 # shapes only used while debugging:
@@ -176,7 +174,7 @@ class GestureEngine:
         self.hands = sorted(new_hands, key=lambda elem: elem.x, reverse=False)  # place hands from left to right
         self.two_hands_in_frame = len(self.hands) == 2
 
-        if len(centers) >= 2:
+        if len(centers) == 2:
 
             dx = centers[0][0] - centers[1][0]
             dy = centers[0][1] - centers[1][1]

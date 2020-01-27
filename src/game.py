@@ -47,10 +47,10 @@ class GameField:
         """Moves all fields and generates a new row at the top"""
 
         # move all rows down by one
-        for x in range(len(self.fieldArray)):
+        for x in range(self.sizeX):
             self.fieldArray[x][0] = 0
-        for x in range(len(self.fieldArray)):
-            for y in range(1, len(self.fieldArray[x])):
+        for x in range(self.sizeX):
+            for y in range(1, self.sizeY):
                 self.fieldArray[x][y - 1] = self.fieldArray[x][y]
         self.generate_row()  # generate the new row
 
@@ -80,7 +80,6 @@ class GameField:
                     self.fieldArray[x][self.sizeY - 1] = 0
 
         self.check_turtle_field()  # check the turtle position
-        self.display()           # debugging
 
     def check_turtle_field(self):
         """Checks the turtle position agains the tile that it currently stands on
